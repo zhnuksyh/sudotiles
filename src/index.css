@@ -16,6 +16,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Hide scrollbars everywhere while keeping scrolling functional. */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / old Edge */
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome, Safari, WebKit */
+}
+
 button {
   font-family: "Fredoka", sans-serif;
 }
