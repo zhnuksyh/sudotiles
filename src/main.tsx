@@ -8,3 +8,14 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+// Register the service worker so the app can launch offline once installed.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .catch(() => {
+        // registration failures are non-fatal — the app still runs online
+      })
+  })
+}
