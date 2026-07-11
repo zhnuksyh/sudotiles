@@ -1,4 +1,4 @@
-import { EraserIcon, GearIcon, PencilIcon } from "./icons";
+import { BookIcon, EraserIcon, GearIcon, PencilIcon, RefreshIcon } from "./icons";
 
 const ACTIVE_BG = "rgba(224,170,96,0.12)";
 const ACTIVE_SHADOW = "0 0 0 2px rgba(224,170,96,0.65) inset";
@@ -14,12 +14,23 @@ interface ControlsProps {
   onTogglePencil: () => void;
   onErase: () => void;
   onOpenDiff: () => void;
+  onOpenGuide: () => void;
+  onRefresh: () => void;
 }
 
 const buttonBase =
   "cursor-pointer rounded-[14px] border-none transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-0.5 hover:brightness-115 active:translate-y-0";
 
-export default function Controls({ guides, pencil, onToggleGuides, onTogglePencil, onErase, onOpenDiff }: ControlsProps) {
+export default function Controls({
+  guides,
+  pencil,
+  onToggleGuides,
+  onTogglePencil,
+  onErase,
+  onOpenDiff,
+  onOpenGuide,
+  onRefresh,
+}: ControlsProps) {
   return (
     <div className="grid grid-cols-9 items-stretch gap-2">
       <button
@@ -34,9 +45,17 @@ export default function Controls({ guides, pencil, onToggleGuides, onTogglePenci
         Show Guide
       </button>
       <button
+        onClick={onOpenGuide}
+        title="How to play"
+        className={`${buttonBase} flex items-center justify-center py-[11px]`}
+        style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW, color: IDLE_COLOR }}
+      >
+        <BookIcon />
+      </button>
+      <button
         onClick={onTogglePencil}
         title="Scribble"
-        className={`${buttonBase} col-start-7 flex items-center justify-center py-[11px]`}
+        className={`${buttonBase} col-start-6 flex items-center justify-center py-[11px]`}
         style={{
           background: pencil ? ACTIVE_BG : IDLE_BG,
           boxShadow: pencil ? ACTIVE_SHADOW : IDLE_SHADOW,
@@ -52,6 +71,14 @@ export default function Controls({ guides, pencil, onToggleGuides, onTogglePenci
         style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW, color: IDLE_COLOR }}
       >
         <EraserIcon />
+      </button>
+      <button
+        onClick={onRefresh}
+        title="New puzzle"
+        className={`${buttonBase} flex items-center justify-center py-[11px]`}
+        style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW, color: IDLE_COLOR }}
+      >
+        <RefreshIcon />
       </button>
       <button
         onClick={onOpenDiff}

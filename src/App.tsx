@@ -1,15 +1,17 @@
 import Board from "./components/Board";
 import Confetti from "./components/Confetti";
+import ConfirmModal from "./components/ConfirmModal";
 import Controls from "./components/Controls";
 import DifficultyModal from "./components/DifficultyModal";
 import GameOverlay from "./components/GameOverlay";
+import GuideModal from "./components/GuideModal";
 import Hud from "./components/Hud";
 import NumberPad from "./components/NumberPad";
 import StreakFlourish from "./components/StreakFlourish";
 import { useSudotiles } from "./game/useSudotiles";
 
 function App() {
-  const { state, flash, shaking, diff, confettiRef, actions } = useSudotiles();
+  const { state, flash, shaking, diff, confirm, guide, confettiRef, actions } = useSudotiles();
 
   return (
     <div
@@ -34,6 +36,8 @@ function App() {
             onTogglePencil={actions.togglePencil}
             onErase={actions.erase}
             onOpenDiff={actions.openDiff}
+            onOpenGuide={actions.openGuide}
+            onRefresh={actions.openConfirm}
           />
         </div>
       </div>
@@ -49,6 +53,15 @@ function App() {
         onSelect={actions.setDifficulty}
         onClose={actions.closeDiff}
       />
+
+      <ConfirmModal
+        open={confirm.open}
+        closing={confirm.closing}
+        onConfirm={actions.confirmRefresh}
+        onClose={actions.closeConfirm}
+      />
+
+      <GuideModal open={guide.open} closing={guide.closing} onClose={actions.closeGuide} />
 
       {state.over && (
         <GameOverlay
