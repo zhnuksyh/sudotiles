@@ -32,7 +32,7 @@ function App() {
 
   return (
     <div
-      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-3 py-5 font-sans sm:px-6 sm:py-8"
+      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden overflow-y-auto px-3 py-5 font-sans sm:px-6 sm:py-8"
       style={{
         background:
           "radial-gradient(135% 105% at 50% 14%, #171614 0%, #100f0e 58%, #0a0908 100%)",

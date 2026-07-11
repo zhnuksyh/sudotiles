@@ -32,10 +32,10 @@ export default function Controls({
   onRefresh,
 }: ControlsProps) {
   return (
-    <div className="grid grid-cols-9 items-stretch gap-2">
+    <div className="grid grid-cols-9 items-stretch gap-1.5 sm:gap-2">
       <button
         onClick={onToggleGuides}
-        className={`${buttonBase} col-span-2 px-1.5 py-[11px] text-[15px] font-medium whitespace-nowrap`}
+        className={`${buttonBase} col-span-2 px-1 py-[11px] text-[12.5px] font-medium whitespace-nowrap sm:px-1.5 sm:text-[15px]`}
         style={{
           background: guides ? ACTIVE_BG : IDLE_BG,
           boxShadow: guides ? ACTIVE_SHADOW : IDLE_SHADOW,

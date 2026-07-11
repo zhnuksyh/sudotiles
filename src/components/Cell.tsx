@@ -31,11 +31,11 @@ export default function Cell({ cell, onSelect }: CellProps) {
         <div className="absolute inset-0 rounded-[9px] bg-white/[0.06] shadow-[0_0_0_2px_rgba(216,211,202,0.85)_inset]" />
       )}
       {cell.isGiven && (
-        <span className="relative text-[30px] font-semibold text-[#ecebe8]">{cell.value}</span>
+        <span className="relative text-[22px] font-semibold text-[#ecebe8] sm:text-[30px]">{cell.value}</span>
       )}
       {cell.isPlayer && (
         <span
-          className="relative text-[30px] font-medium text-[#9a958d]"
+          className="relative text-[22px] font-medium text-[#9a958d] sm:text-[30px]"
           style={{ animation: "st-cellpop 0.28s ease-out both" }}
         >
           {cell.value}
@@ -43,7 +43,7 @@ export default function Cell({ cell, onSelect }: CellProps) {
       )}
       {cell.isError && (
         <span
-          className="relative text-[30px] font-medium text-[#e0605f]"
+          className="relative text-[22px] font-medium text-[#e0605f] sm:text-[30px]"
           style={{ animation: "st-cellpop 0.28s ease-out both" }}
         >
           {cell.value}

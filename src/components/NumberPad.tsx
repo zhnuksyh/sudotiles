@@ -16,7 +16,7 @@ export default function NumberPad({ onPlace, onScribble }: NumberPadProps) {
             e.preventDefault();
             onScribble(d);
           }}
-          className="aspect-square cursor-pointer rounded-[14px] border-none bg-gradient-to-b from-[#262320] to-[#1c1a17] text-[23px] font-medium text-[#e4e1db] shadow-[0_2px_5px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.04)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-0.5 hover:brightness-125 active:translate-y-0 active:brightness-90"
+          className="aspect-square cursor-pointer rounded-[14px] border-none bg-gradient-to-b from-[#262320] to-[#1c1a17] text-[19px] font-medium text-[#e4e1db] shadow-[0_2px_5px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.04)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-0.5 hover:brightness-125 active:translate-y-0 active:brightness-90 sm:text-[23px]"
         >
           {d}
         </button>
