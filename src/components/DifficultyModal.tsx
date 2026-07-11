@@ -1,9 +1,9 @@
 import { DIFFICULTIES } from "../game/constants";
 import { CloseIcon } from "./icons";
 
-const ACTIVE_BG = "rgba(224,170,96,0.12)";
-const ACTIVE_SHADOW = "0 0 0 2px rgba(224,170,96,0.65) inset";
-const ACTIVE_COLOR = "#dcb887";
+const ACTIVE_BG = "rgba(226,224,220,0.10)";
+const ACTIVE_SHADOW = "0 0 0 2px rgba(214,210,203,0.55) inset";
+const ACTIVE_COLOR = "#e0ddd6";
 const IDLE_BG = "linear-gradient(180deg,#282520,#1e1b17)";
 const IDLE_SHADOW = "0 1px 0 rgba(255,255,255,0.04) inset";
 const IDLE_COLOR = "#e4e1db";
