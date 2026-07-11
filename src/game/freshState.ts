@@ -46,7 +46,6 @@ function baseState(difficulty: string): Omit<GameState, "board" | "solution" | "
   return {
     selected: null,
     pencil: false,
-    guides: false,
     started: false,
     hearts: MAX_HEARTS,
     score: 0,

@@ -4,9 +4,10 @@ import type { CellView } from "../game/derive";
 interface CellProps {
   cell: CellView;
   onSelect: (index: number) => void;
+  animate: boolean;
 }
 
-export default function Cell({ cell, onSelect }: CellProps) {
+export default function Cell({ cell, onSelect, animate }: CellProps) {
   const handleContext = (e: MouseEvent) => {
     e.preventDefault();
     onSelect(cell.index);
@@ -36,7 +37,7 @@ export default function Cell({ cell, onSelect }: CellProps) {
       {cell.isPlayer && (
         <span
           className="relative text-[22px] font-medium text-[#9a958d] sm:text-[30px]"
-          style={{ animation: "st-cellpop 0.28s ease-out both" }}
+          style={{ animation: animate ? "st-cellpop 0.28s ease-out both" : undefined }}
         >
           {cell.value}
         </span>
@@ -44,7 +45,7 @@ export default function Cell({ cell, onSelect }: CellProps) {
       {cell.isError && (
         <span
           className="relative text-[22px] font-medium text-[#e0605f] sm:text-[30px]"
-          style={{ animation: "st-cellpop 0.28s ease-out both" }}
+          style={{ animation: animate ? "st-cellpop 0.28s ease-out both" : undefined }}
         >
           {cell.value}
         </span>

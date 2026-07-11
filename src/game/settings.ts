@@ -7,6 +7,9 @@ export interface Settings {
   numpadPosition: NumpadPosition;
   livesEnabled: boolean;
   timerEnabled: boolean;
+  keyboardEnabled: boolean;
+  animationsEnabled: boolean;
+  guidesEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -14,6 +17,9 @@ export const DEFAULT_SETTINGS: Settings = {
   numpadPosition: "bottom",
   livesEnabled: true,
   timerEnabled: true,
+  keyboardEnabled: true,
+  animationsEnabled: true,
+  guidesEnabled: true,
 };
 
 const STORAGE_KEY = "sudotiles:settings";

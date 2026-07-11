@@ -15,18 +15,25 @@ function App() {
     useSudotiles();
 
   const numpadRight = settings.numpadPosition === "right";
+  const animate = settings.animationsEnabled;
 
-  const numberPad = <NumberPad onPlace={actions.placeNum} onScribble={actions.scribbleToggle} />;
-  const controls = (
-    <Controls
-      guides={state.guides}
-      pencil={state.pencil}
-      onToggleGuides={actions.toggleGuides}
-      onTogglePencil={actions.togglePencil}
-      onErase={actions.erase}
-      onOpenDiff={actions.openDiff}
-      onOpenGuide={actions.openGuide}
-      onRefresh={actions.openConfirm}
+  const hud = (
+    <Hud
+      hearts={state.hearts}
+      score={state.score}
+      elapsed={state.elapsed}
+      streak={state.streak}
+      showLives={settings.livesEnabled}
+      showTimer={settings.timerEnabled}
+    />
+  );
+
+  const board = (
+    <Board
+      state={state}
+      onSelect={actions.select}
+      animate={animate}
+      guides={settings.guidesEnabled}
     />
   );
 
@@ -40,43 +47,57 @@ function App() {
     >
       <div
         className="flex flex-col items-center gap-4 sm:gap-5"
-        style={{ animation: shaking ? "st-shake 0.45s ease-in-out" : "" }}
+        style={{ animation: shaking && animate ? "st-shake 0.45s ease-in-out" : "" }}
       >
-        <Hud
-          hearts={state.hearts}
-          score={state.score}
-          elapsed={state.elapsed}
-          streak={state.streak}
-          showLives={settings.livesEnabled}
-          showTimer={settings.timerEnabled}
-        />
-
-        {/* On "right", pad sits beside the board on wide viewports and collapses
-            below it on narrow ones. On "bottom", it always sits below. */}
-        <div
-          className={
-            numpadRight
-              ? "flex flex-col items-center gap-4 lg:flex-row lg:items-start"
-              : "flex flex-col items-center gap-4"
-          }
-        >
-          <Board state={state} onSelect={actions.select} />
-          <div
-            className={
-              numpadRight
-                ? "flex w-full max-w-[min(560px,90vw)] flex-col gap-3 lg:w-auto"
-                : "flex w-full max-w-[min(560px,90vw)] flex-col gap-3"
-            }
-          >
-            <div className={numpadRight ? "lg:w-[240px]" : ""}>{numberPad}</div>
-            {controls}
+        {numpadRight ? (
+          /* Right layout: header + board on the left; number pad and controls
+             stacked in a right column beside the board on wide viewports, and
+             below it on narrow ones. */
+          <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-start">
+            <div className="flex flex-col items-center gap-4 sm:gap-5">
+              {hud}
+              {board}
+            </div>
+            <div className="flex w-full max-w-[min(560px,90vw)] flex-col gap-3 lg:w-[248px]">
+              <NumberPad
+                onPlace={actions.placeNum}
+                onScribble={actions.scribbleToggle}
+                orientation="vertical"
+              />
+              <Controls
+                pencil={state.pencil}
+                onTogglePencil={actions.togglePencil}
+                onErase={actions.erase}
+                onOpenDiff={actions.openDiff}
+                onOpenGuide={actions.openGuide}
+                onRefresh={actions.openConfirm}
+                orientation="vertical"
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Bottom layout (default): header, board, then pad + controls below. */
+          <>
+            {hud}
+            {board}
+            <div className="flex w-full max-w-[min(560px,90vw)] flex-col gap-3">
+              <NumberPad onPlace={actions.placeNum} onScribble={actions.scribbleToggle} />
+              <Controls
+                pencil={state.pencil}
+                onTogglePencil={actions.togglePencil}
+                onErase={actions.erase}
+                onOpenDiff={actions.openDiff}
+                onOpenGuide={actions.openGuide}
+                onRefresh={actions.openConfirm}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <Confetti ref={confettiRef} />
 
-      <StreakFlourish show={flash.on} text={flash.text} />
+      <StreakFlourish show={flash.on} text={flash.text} animate={animate} />
 
       <SettingsModal
         open={diff.open}
@@ -86,23 +107,28 @@ function App() {
         onSetNumpadPosition={actions.setNumpadPosition}
         onToggleLives={actions.toggleLives}
         onToggleTimer={actions.toggleTimer}
+        onToggleKeyboard={actions.toggleKeyboard}
+        onToggleAnimations={actions.toggleAnimations}
+        onToggleGuides={actions.toggleGuides}
         onClose={actions.closeDiff}
       />
 
       <ConfirmModal
         open={confirm.open}
         closing={confirm.closing}
+        animate={animate}
         onConfirm={actions.confirmRefresh}
         onClose={actions.closeConfirm}
       />
 
-      <GuideModal open={guide.open} closing={guide.closing} onClose={actions.closeGuide} />
+      <GuideModal open={guide.open} closing={guide.closing} animate={animate} onClose={actions.closeGuide} />
 
       {state.over && (
         <GameOverlay
           title="Out of lives"
           subtitle={`You scored ${state.score.toLocaleString()} points in ${formatTime(state.elapsed)}`}
           buttonLabel="Play again"
+          animate={animate}
           onButtonClick={actions.restart}
         />
       )}
@@ -112,6 +138,7 @@ function App() {
           title="Solved!"
           subtitle={`Final score ${state.score.toLocaleString()} · ${formatTime(state.elapsed)}`}
           buttonLabel="New puzzle"
+          animate={animate}
           onButtonClick={actions.restart}
         />
       )}

@@ -17,8 +17,16 @@ interface SettingsModalProps {
   onSetNumpadPosition: (position: NumpadPosition) => void;
   onToggleLives: () => void;
   onToggleTimer: () => void;
+  onToggleKeyboard: () => void;
+  onToggleAnimations: () => void;
+  onToggleGuides: () => void;
   onClose: () => void;
 }
+
+// Hide keyboard-only options on touch devices where they don't apply.
+const isTouchDevice =
+  typeof window !== "undefined" &&
+  ("ontouchstart" in window || (navigator.maxTouchPoints ?? 0) > 0);
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -96,20 +104,37 @@ export default function SettingsModal({
   onSetNumpadPosition,
   onToggleLives,
   onToggleTimer,
+  onToggleKeyboard,
+  onToggleAnimations,
+  onToggleGuides,
   onClose,
 }: SettingsModalProps) {
   if (!open) return null;
+
+  const animate = settings.animationsEnabled;
 
   return (
     <div
       onClick={onClose}
       className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-[3px]"
-      style={{ animation: closing ? "st-fadeout 0.2s ease-in both" : "st-fade 0.2s ease-out both" }}
+      style={{
+        animation: animate
+          ? closing
+            ? "st-fadeout 0.2s ease-in both"
+            : "st-fade 0.2s ease-out both"
+          : undefined,
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative flex max-h-[86vh] w-[340px] max-w-[88vw] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset]"
-        style={{ animation: closing ? "st-fall 0.2s ease-in both" : "st-rise 0.28s ease-out both" }}
+        style={{
+          animation: animate
+            ? closing
+              ? "st-fall 0.2s ease-in both"
+              : "st-rise 0.28s ease-out both"
+            : undefined,
+        }}
       >
         <button
           onClick={onClose}
@@ -152,8 +177,17 @@ export default function SettingsModal({
 
         <SectionLabel>Gameplay</SectionLabel>
         <div className="flex flex-col gap-2">
+          <Toggle on={settings.guidesEnabled} onChange={onToggleGuides} label="Show guide" />
           <Toggle on={settings.livesEnabled} onChange={onToggleLives} label="Lives" />
           <Toggle on={settings.timerEnabled} onChange={onToggleTimer} label="Timer" />
+          <Toggle on={settings.animationsEnabled} onChange={onToggleAnimations} label="Animations" />
+          {!isTouchDevice && (
+            <Toggle
+              on={settings.keyboardEnabled}
+              onChange={onToggleKeyboard}
+              label="Keyboard shortcuts"
+            />
+          )}
         </div>
       </div>
     </div>

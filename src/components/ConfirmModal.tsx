@@ -6,23 +6,36 @@ const IDLE_SHADOW = "0 1px 0 rgba(255,255,255,0.04) inset";
 interface ConfirmModalProps {
   open: boolean;
   closing: boolean;
+  animate: boolean;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-export default function ConfirmModal({ open, closing, onConfirm, onClose }: ConfirmModalProps) {
+export default function ConfirmModal({ open, closing, animate, onConfirm, onClose }: ConfirmModalProps) {
   if (!open) return null;
 
   return (
     <div
       onClick={onClose}
       className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[3px]"
-      style={{ animation: closing ? "st-fadeout 0.2s ease-in both" : "st-fade 0.2s ease-out both" }}
+      style={{
+        animation: animate
+          ? closing
+            ? "st-fadeout 0.2s ease-in both"
+            : "st-fade 0.2s ease-out both"
+          : undefined,
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative flex w-[320px] max-w-[86vw] flex-col gap-2.5 rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset]"
-        style={{ animation: closing ? "st-fall 0.2s ease-in both" : "st-rise 0.28s ease-out both" }}
+        style={{
+          animation: animate
+            ? closing
+              ? "st-fall 0.2s ease-in both"
+              : "st-rise 0.28s ease-out both"
+            : undefined,
+        }}
       >
         <button
           onClick={onClose}

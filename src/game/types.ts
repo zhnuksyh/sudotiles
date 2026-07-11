@@ -13,7 +13,6 @@ export interface GameState {
   dealing: boolean;
   selected: number | null;
   pencil: boolean;
-  guides: boolean;
   started: boolean;
   hearts: number;
   score: number;

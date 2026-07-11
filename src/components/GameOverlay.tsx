@@ -2,18 +2,19 @@ interface GameOverlayProps {
   title: string;
   subtitle: string;
   buttonLabel: string;
+  animate: boolean;
   onButtonClick: () => void;
 }
 
-export default function GameOverlay({ title, subtitle, buttonLabel, onButtonClick }: GameOverlayProps) {
+export default function GameOverlay({ title, subtitle, buttonLabel, animate, onButtonClick }: GameOverlayProps) {
   return (
     <div
       className="absolute inset-0 z-50 flex items-center justify-center bg-black/[0.62] backdrop-blur-[3px]"
-      style={{ animation: "st-fade 0.25s ease-out both" }}
+      style={{ animation: animate ? "st-fade 0.25s ease-out both" : undefined }}
     >
       <div
         className="flex flex-col items-center gap-3.5 rounded-[28px] bg-gradient-to-b from-[#201e1b] to-[#161513] px-[46px] py-[38px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset]"
-        style={{ animation: "st-rise 0.3s ease-out both" }}
+        style={{ animation: animate ? "st-rise 0.3s ease-out both" : undefined }}
       >
         <span className="text-[30px] font-semibold text-[#ecebe8]">{title}</span>
         <span className="text-base font-normal text-[#9a9084]">{subtitle}</span>

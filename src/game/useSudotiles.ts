@@ -51,6 +51,10 @@ export function useSudotiles() {
   const [confirm, setConfirm] = useState({ open: false, closing: false });
   const [guide, setGuide] = useState({ open: false, closing: false });
 
+  // Track whether any modal is open so keyboard shortcuts stay dormant then.
+  const anyModalOpenRef = useRef(false);
+  anyModalOpenRef.current = diff.open || confirm.open || guide.open;
+
   const confettiRef = useRef<ConfettiHandle>(null);
   const flashTimeout = useRef<number | undefined>(undefined);
   const shakeTimeout = useRef<number | undefined>(undefined);
@@ -117,12 +121,14 @@ export function useSudotiles() {
   }, [deal]);
 
   const shake = useCallback(() => {
+    if (!settingsRef.current.animationsEnabled) return;
     window.clearTimeout(shakeTimeout.current);
     setShaking(true);
     shakeTimeout.current = window.setTimeout(() => setShaking(false), 460);
   }, []);
 
   const flourish = useCallback((text: string) => {
+    if (!settingsRef.current.animationsEnabled) return;
     window.clearTimeout(flashTimeout.current);
     setFlash({ on: true, text });
     flashTimeout.current = window.setTimeout(() => setFlash({ on: false, text: "" }), 1300);
@@ -130,6 +136,7 @@ export function useSudotiles() {
   }, []);
 
   const celebrate = useCallback(() => {
+    if (!settingsRef.current.animationsEnabled) return;
     confettiRef.current?.fire(140, 0.5, 0.35);
     window.setTimeout(() => confettiRef.current?.fire(90, 0.2, 0.45), 200);
     window.setTimeout(() => confettiRef.current?.fire(90, 0.8, 0.45), 380);
@@ -146,7 +153,7 @@ export function useSudotiles() {
   }, []);
 
   const toggleGuides = useCallback(() => {
-    setState((s) => ({ ...s, guides: !s.guides }));
+    setSettings((prev) => ({ ...prev, guidesEnabled: !prev.guidesEnabled }));
   }, []);
 
   const openDiff = useCallback(() => {
@@ -201,6 +208,14 @@ export function useSudotiles() {
 
   const toggleTimer = useCallback(() => {
     setSettings((prev) => ({ ...prev, timerEnabled: !prev.timerEnabled }));
+  }, []);
+
+  const toggleKeyboard = useCallback(() => {
+    setSettings((prev) => ({ ...prev, keyboardEnabled: !prev.keyboardEnabled }));
+  }, []);
+
+  const toggleAnimations = useCallback(() => {
+    setSettings((prev) => ({ ...prev, animationsEnabled: !prev.animationsEnabled }));
   }, []);
 
   const erase = useCallback(() => {
@@ -292,6 +307,29 @@ export function useSudotiles() {
     [scribbleToggle, shake, flourish, celebrate],
   );
 
+  // Keyboard shortcuts: 1-9 place a number, Space erases, Tab toggles scribble
+  // mode. Active only when enabled in settings and no modal is open.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!settingsRef.current.keyboardEnabled) return;
+      if (anyModalOpenRef.current) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      if (e.key >= "1" && e.key <= "9") {
+        e.preventDefault();
+        placeNum(Number(e.key));
+      } else if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        erase();
+      } else if (e.key === "Tab") {
+        e.preventDefault();
+        togglePencil();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [placeNum, erase, togglePencil]);
+
   const restart = useCallback(() => {
     window.clearTimeout(flashTimeout.current);
     setFlash({ on: false, text: "" });
@@ -322,6 +360,8 @@ export function useSudotiles() {
       setNumpadPosition,
       toggleLives,
       toggleTimer,
+      toggleKeyboard,
+      toggleAnimations,
       erase,
       scribbleToggle,
       placeNum,

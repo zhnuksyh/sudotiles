@@ -23,7 +23,7 @@ export interface CellView {
   scribbles: string[];
 }
 
-export function deriveCellView(state: GameState, idx: number): CellView {
+export function deriveCellView(state: GameState, idx: number, guides: boolean): CellView {
   const cell = state.board[idx];
   const sel = state.selected;
   const isSelected = idx === sel;
@@ -34,7 +34,7 @@ export function deriveCellView(state: GameState, idx: number): CellView {
 
   let isPeer = false;
   let isSame = false;
-  if (state.guides && sel != null && !isSelected) {
+  if (guides && sel != null && !isSelected) {
     const sameRow = cell.r === sr;
     const sameCol = cell.c === sc;
     const sameBox = Math.floor(cell.r / 3) === Math.floor(sr / 3) && Math.floor(cell.c / 3) === Math.floor(sc / 3);

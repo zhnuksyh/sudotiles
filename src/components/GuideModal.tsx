@@ -4,6 +4,7 @@ import { CloseIcon } from "./icons";
 interface GuideModalProps {
   open: boolean;
   closing: boolean;
+  animate: boolean;
   onClose: () => void;
 }
 
@@ -107,19 +108,31 @@ function SectionTitle({ children }: { children: ReactNode }) {
   );
 }
 
-export default function GuideModal({ open, closing, onClose }: GuideModalProps) {
+export default function GuideModal({ open, closing, animate, onClose }: GuideModalProps) {
   if (!open) return null;
 
   return (
     <div
       onClick={onClose}
       className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-[3px]"
-      style={{ animation: closing ? "st-fadeout 0.2s ease-in both" : "st-fade 0.2s ease-out both" }}
+      style={{
+        animation: animate
+          ? closing
+            ? "st-fadeout 0.2s ease-in both"
+            : "st-fade 0.2s ease-out both"
+          : undefined,
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative flex max-h-[82vh] w-[440px] max-w-[92vw] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset]"
-        style={{ animation: closing ? "st-fall 0.2s ease-in both" : "st-rise 0.28s ease-out both" }}
+        style={{
+          animation: animate
+            ? closing
+              ? "st-fall 0.2s ease-in both"
+              : "st-rise 0.28s ease-out both"
+            : undefined,
+        }}
       >
         <button
           onClick={onClose}
@@ -164,11 +177,49 @@ export default function GuideModal({ open, closing, onClose }: GuideModalProps) 
             candidate scribbles in a cell.
           </li>
           <li>
-            Turn on <span className="text-[#dcb887]">Show Guide</span> to highlight the peers and
-            matching numbers of the selected cell.
+            Turn on <span className="text-[#dcb887]">Show guide</span> in Settings to highlight the
+            peers and matching numbers of the selected cell.
           </li>
+          <li>A correct number locks into place — it can't be erased or overwritten.</li>
           <li>Wrong answers cost a heart — build a streak of correct placements for bonus flourishes.</li>
         </ul>
+
+        <SectionTitle>Keyboard shortcuts</SectionTitle>
+        <p className="mb-2 text-[11.5px] leading-relaxed text-[#7c756b]">
+          Desktop only, and can be turned off in Settings.
+        </p>
+        <div className="flex flex-col gap-1.5">
+          {[
+            { keys: ["1", "–", "9"], desc: "Place that number in the selected cell" },
+            { keys: ["Space"], desc: "Erase the selected cell" },
+            { keys: ["Tab"], desc: "Enter or leave scribble (pencil) mode" },
+          ].map((row) => (
+            <div key={row.desc} className="flex items-center gap-3">
+              <div className="flex shrink-0 items-center gap-1">
+                {row.keys.map((k, i) =>
+                  k === "–" ? (
+                    <span key={i} className="text-[12px] text-[#8a837a]">
+                      –
+                    </span>
+                  ) : (
+                    <kbd
+                      key={i}
+                      className="inline-flex min-w-[26px] items-center justify-center rounded-[7px] px-2 py-1 text-[12px] font-medium text-[#e4e1db]"
+                      style={{
+                        background: "linear-gradient(180deg,#2c2924,#201d19)",
+                        boxShadow:
+                          "0 1px 0 rgba(255,255,255,0.05) inset, 0 1px 2px rgba(0,0,0,0.4)",
+                      }}
+                    >
+                      {k}
+                    </kbd>
+                  ),
+                )}
+              </div>
+              <span className="text-[12.5px] leading-relaxed text-[#a49d92]">{row.desc}</span>
+            </div>
+          ))}
+        </div>
 
         <SectionTitle>Video tutorials</SectionTitle>
         <div className="flex flex-col gap-2">
