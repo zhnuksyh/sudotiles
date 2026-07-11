@@ -125,7 +125,7 @@ export default function GuideModal({ open, closing, animate, onClose }: GuideMod
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[82vh] w-[440px] max-w-[92vw] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset]"
+        className="relative flex max-h-[82vh] w-[min(92vw,440px)] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:w-[520px] lg:w-[600px]"
         style={{
           animation: animate
             ? closing
