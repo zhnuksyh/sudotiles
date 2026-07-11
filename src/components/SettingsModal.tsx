@@ -42,8 +42,7 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: () => void; la
       onClick={onChange}
       role="switch"
       aria-checked={on}
-      className="flex cursor-pointer items-center justify-between rounded-[14px] border-none px-4 py-3 text-left transition-[filter] duration-100 ease-in-out hover:brightness-[1.1]"
-      style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW }}
+      className="flex cursor-pointer items-center justify-between border-none bg-transparent px-1 py-2 text-left transition-[filter] duration-100 ease-in-out hover:brightness-[1.1]"
     >
       <span className="text-[15px] font-medium text-[#e4e1db]">{label}</span>
       <span
