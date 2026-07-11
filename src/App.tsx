@@ -50,15 +50,14 @@ function App() {
         style={{ animation: shaking && animate ? "st-shake 0.45s ease-in-out" : "" }}
       >
         {numpadRight ? (
-          /* Right layout: header + board on the left; number pad and controls
-             stacked in a right column beside the board on wide viewports, and
-             below it on narrow ones. */
-          <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-start">
-            <div className="flex flex-col items-center gap-4 sm:gap-5">
-              {hud}
-              {board}
-            </div>
-            <div className="flex w-full max-w-[min(560px,90vw)] flex-col gap-3 lg:w-[248px]">
+          /* Right layout. On wide viewports a 2-column grid keeps the header
+             directly above the board (column 1) while the number pad and
+             controls sit in column 2 starting at the board's top. It collapses
+             to a single centered column (header, board, pad) on narrow screens. */
+          <div className="flex flex-col items-center gap-4 sm:gap-5 lg:grid lg:grid-cols-[auto_248px] lg:items-start lg:gap-x-5 lg:gap-y-4">
+            <div className="lg:col-start-1 lg:row-start-1 lg:justify-self-stretch">{hud}</div>
+            <div className="lg:col-start-1 lg:row-start-2">{board}</div>
+            <div className="flex w-full max-w-[min(560px,90vw)] flex-col gap-3 lg:col-start-2 lg:row-start-2 lg:w-[248px]">
               <NumberPad
                 onPlace={actions.placeNum}
                 onScribble={actions.scribbleToggle}
