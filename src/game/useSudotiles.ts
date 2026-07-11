@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BASE_POINTS, STREAK_MILESTONE } from "./constants";
 import { dealingState, freshState, readyState } from "./freshState";
+import { loadSettings, saveSettings } from "./settings";
+import type { Settings } from "./settings";
 import type { Cell, GameState } from "./types";
 import type { WorkerRequest, WorkerResponse } from "./sudoku.worker";
 import type { ConfettiHandle } from "../components/Confetti";
@@ -26,14 +28,22 @@ function clearPeerScribbles(board: Cell[], selected: number, n: number) {
 }
 
 export function useSudotiles() {
+  const [settings, setSettings] = useState<Settings>(() => loadSettings());
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
   const [state, setState] = useState<GameState>(() =>
-    supportsWorker ? dealingState() : freshState(),
+    supportsWorker ? dealingState(settings.difficulty) : freshState(settings.difficulty),
   );
   const stateRef = useRef(state);
   stateRef.current = state;
 
   const workerRef = useRef<Worker | null>(null);
   const requestId = useRef(0);
+
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
 
   const [flash, setFlash] = useState({ on: false, text: "" });
   const [shaking, setShaking] = useState(false);
@@ -50,6 +60,7 @@ export function useSudotiles() {
 
   useEffect(() => {
     const id = window.setInterval(() => {
+      if (!settingsRef.current.timerEnabled) return;
       setState((s) => (!s.started || s.over || s.won ? s : { ...s, elapsed: s.elapsed + 1 }));
     }, 1000);
     return () => window.clearInterval(id);
@@ -173,11 +184,24 @@ export function useSudotiles() {
 
   const setDifficulty = useCallback(
     (label: string) => {
+      setSettings((prev) => ({ ...prev, difficulty: label }));
       deal(label);
       closeDiff();
     },
     [deal, closeDiff],
   );
+
+  const setNumpadPosition = useCallback((numpadPosition: Settings["numpadPosition"]) => {
+    setSettings((prev) => ({ ...prev, numpadPosition }));
+  }, []);
+
+  const toggleLives = useCallback(() => {
+    setSettings((prev) => ({ ...prev, livesEnabled: !prev.livesEnabled }));
+  }, []);
+
+  const toggleTimer = useCallback(() => {
+    setSettings((prev) => ({ ...prev, timerEnabled: !prev.timerEnabled }));
+  }, []);
 
   const erase = useCallback(() => {
     const s = stateRef.current;
@@ -246,12 +270,13 @@ export function useSudotiles() {
           error: true,
           scribbles: Array(9).fill(false),
         };
-        const hearts = s.hearts - 1;
+        const livesOn = settingsRef.current.livesEnabled;
+        const hearts = livesOn ? s.hearts - 1 : s.hearts;
         const next: GameState = {
           ...s,
           board,
           hearts,
-          over: hearts <= 0,
+          over: livesOn && hearts <= 0,
           streak: 0,
           started: true,
         };
@@ -275,6 +300,7 @@ export function useSudotiles() {
 
   return {
     state,
+    settings,
     flash,
     shaking,
     diff,
@@ -288,6 +314,9 @@ export function useSudotiles() {
       openDiff,
       closeDiff,
       setDifficulty,
+      setNumpadPosition,
+      toggleLives,
+      toggleTimer,
       erase,
       scribbleToggle,
       placeNum,

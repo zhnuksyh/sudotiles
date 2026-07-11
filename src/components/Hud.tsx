@@ -6,35 +6,44 @@ interface HudProps {
   score: number;
   elapsed: number;
   streak: number;
+  showLives: boolean;
+  showTimer: boolean;
 }
 
-export default function Hud({ hearts, score, elapsed, streak }: HudProps) {
+export default function Hud({ hearts, score, elapsed, streak, showLives, showTimer }: HudProps) {
   const mm = Math.floor(elapsed / 60);
   const ss = String(elapsed % 60).padStart(2, "0");
   const timeLabel = `${mm}:${ss}`;
 
   return (
-    <div className="grid w-[560px] max-w-[90vw] grid-cols-[1fr_auto_1fr] items-center">
+    <div className="grid w-full max-w-[min(560px,90vw)] grid-cols-[1fr_auto_1fr] items-center">
       <div className="flex items-center justify-self-start gap-[7px]">
-        {Array.from({ length: MAX_HEARTS }, (_, i) =>
-          i < hearts ? <HeartFilledIcon key={i} /> : <HeartEmptyIcon key={i} />,
-        )}
+        {showLives &&
+          Array.from({ length: MAX_HEARTS }, (_, i) =>
+            i < hearts ? <HeartFilledIcon key={i} /> : <HeartEmptyIcon key={i} />,
+          )}
       </div>
-      <div className="flex items-start justify-self-center gap-[34px]">
+      <div className="flex items-start justify-self-center gap-[26px] sm:gap-[34px]">
         <div className="text-center">
           <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">SCORE</div>
-          <div className="text-[32px] leading-[1.05] font-semibold text-[#ecebe8]">{score.toLocaleString()}</div>
-        </div>
-        <div className="text-center">
-          <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">TIME</div>
-          <div className="text-[32px] leading-[1.05] font-semibold text-[#b3ada3] [font-variant-numeric:tabular-nums]">
-            {timeLabel}
+          <div className="text-[26px] leading-[1.05] font-semibold text-[#ecebe8] sm:text-[32px]">
+            {score.toLocaleString()}
           </div>
         </div>
+        {showTimer && (
+          <div className="text-center">
+            <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">TIME</div>
+            <div className="text-[26px] leading-[1.05] font-semibold text-[#b3ada3] [font-variant-numeric:tabular-nums] sm:text-[32px]">
+              {timeLabel}
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex flex-col items-end justify-self-end">
         <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">STREAK</div>
-        <span className="text-[32px] leading-[1.05] font-semibold text-[#d8d3ca]">{streak}</span>
+        <span className="text-[26px] leading-[1.05] font-semibold text-[#d8d3ca] sm:text-[32px]">
+          {streak}
+        </span>
       </div>
     </div>
   );
