@@ -9,6 +9,8 @@ export interface Cell {
 
 export interface GameState {
   board: Cell[];
+  solution: string;
+  dealing: boolean;
   selected: number | null;
   pencil: boolean;
   guides: boolean;

@@ -25,14 +25,21 @@ export const BASE_POINTS = 100;
 export interface Difficulty {
   label: string;
   desc: string;
+  clues: number;
 }
 
 export const DIFFICULTIES: Difficulty[] = [
-  { label: "Easy", desc: "More clues, forgiving pace" },
-  { label: "Medium", desc: "A balanced board" },
-  { label: "Expert", desc: "Fewer clues to lean on" },
-  { label: "Hardcore", desc: "One life, no guides" },
+  { label: "Easy", desc: "More clues, forgiving pace", clues: 45 },
+  { label: "Medium", desc: "A balanced board", clues: 36 },
+  { label: "Expert", desc: "Fewer clues to lean on", clues: 30 },
+  { label: "Hardcore", desc: "One life, no guides", clues: 25 },
 ];
+
+export const DEFAULT_DIFFICULTY = "Medium";
+
+export function cluesFor(difficulty: string): number {
+  return DIFFICULTIES.find((d) => d.label === difficulty)?.clues ?? 36;
+}
 
 export const STREAK_MILESTONE = 10;
 export const MAX_HEARTS = 3;

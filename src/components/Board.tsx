@@ -23,6 +23,14 @@ export default function Board({ state, onSelect }: BoardProps) {
           </div>
         ))}
       </div>
+      {state.dealing && (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center rounded-[30px] bg-[#100f0e]/60 backdrop-blur-[2px]"
+          style={{ animation: "st-fade 0.2s ease-out both" }}
+        >
+          <span className="text-[17px] font-medium tracking-wide text-[#dcb887]">Dealing…</span>
+        </div>
+      )}
     </div>
   );
 }

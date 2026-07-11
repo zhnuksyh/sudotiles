@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BASE_POINTS, SOLUTION, STREAK_MILESTONE } from "./constants";
-import { freshState } from "./freshState";
+import { BASE_POINTS, STREAK_MILESTONE } from "./constants";
+import { dealingState, freshState, readyState } from "./freshState";
 import type { Cell, GameState } from "./types";
+import type { WorkerRequest, WorkerResponse } from "./sudoku.worker";
 import type { ConfettiHandle } from "../components/Confetti";
+
+const supportsWorker = typeof Worker !== "undefined";
 
 function clearPeerScribbles(board: Cell[], selected: number, n: number) {
   const sr = Math.floor(selected / 9);
@@ -23,18 +26,27 @@ function clearPeerScribbles(board: Cell[], selected: number, n: number) {
 }
 
 export function useSudotiles() {
-  const [state, setState] = useState<GameState>(() => freshState());
+  const [state, setState] = useState<GameState>(() =>
+    supportsWorker ? dealingState() : freshState(),
+  );
   const stateRef = useRef(state);
   stateRef.current = state;
+
+  const workerRef = useRef<Worker | null>(null);
+  const requestId = useRef(0);
 
   const [flash, setFlash] = useState({ on: false, text: "" });
   const [shaking, setShaking] = useState(false);
   const [diff, setDiff] = useState({ open: false, closing: false });
+  const [confirm, setConfirm] = useState({ open: false, closing: false });
+  const [guide, setGuide] = useState({ open: false, closing: false });
 
   const confettiRef = useRef<ConfettiHandle>(null);
   const flashTimeout = useRef<number | undefined>(undefined);
   const shakeTimeout = useRef<number | undefined>(undefined);
   const diffTimeout = useRef<number | undefined>(undefined);
+  const confirmTimeout = useRef<number | undefined>(undefined);
+  const guideTimeout = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -48,8 +60,50 @@ export function useSudotiles() {
       window.clearTimeout(flashTimeout.current);
       window.clearTimeout(shakeTimeout.current);
       window.clearTimeout(diffTimeout.current);
+      window.clearTimeout(confirmTimeout.current);
+      window.clearTimeout(guideTimeout.current);
     };
   }, []);
+
+  // Request a fresh puzzle for `difficulty`. Shows a "dealing" board immediately
+  // and fills it when the worker (or the synchronous fallback) responds. Stale
+  // worker responses (from a superseded request) are ignored via `requestId`.
+  const deal = useCallback((difficulty: string) => {
+    const next = dealingState(difficulty);
+    setState(next);
+    stateRef.current = next;
+
+    const id = ++requestId.current;
+    const worker = workerRef.current;
+    if (worker) {
+      const req: WorkerRequest = { id, difficulty };
+      worker.postMessage(req);
+    } else {
+      const ready = freshState(difficulty);
+      setState(ready);
+      stateRef.current = ready;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!supportsWorker) return;
+    const worker = new Worker(new URL("./sudoku.worker.ts", import.meta.url), { type: "module" });
+    workerRef.current = worker;
+    worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
+      const { id, puzzle } = e.data;
+      // Ignore responses for superseded requests.
+      if (id !== requestId.current) return;
+      const ready = readyState(stateRef.current.difficulty, puzzle);
+      setState(ready);
+      stateRef.current = ready;
+    };
+    // Deal the opening puzzle once the worker is live.
+    deal(stateRef.current.difficulty);
+    return () => {
+      worker.terminate();
+      workerRef.current = null;
+    };
+  }, [deal]);
 
   const shake = useCallback(() => {
     window.clearTimeout(shakeTimeout.current);
@@ -72,7 +126,7 @@ export function useSudotiles() {
 
   const select = useCallback((i: number) => {
     const s = stateRef.current;
-    if (s.over || s.won) return;
+    if (s.over || s.won || s.dealing) return;
     setState({ ...s, selected: i });
   }, []);
 
@@ -95,12 +149,34 @@ export function useSudotiles() {
     diffTimeout.current = window.setTimeout(() => setDiff({ open: false, closing: false }), 210);
   }, []);
 
+  const openConfirm = useCallback(() => {
+    window.clearTimeout(confirmTimeout.current);
+    setConfirm({ open: true, closing: false });
+  }, []);
+
+  const closeConfirm = useCallback(() => {
+    window.clearTimeout(confirmTimeout.current);
+    setConfirm((c) => ({ ...c, closing: true }));
+    confirmTimeout.current = window.setTimeout(() => setConfirm({ open: false, closing: false }), 210);
+  }, []);
+
+  const openGuide = useCallback(() => {
+    window.clearTimeout(guideTimeout.current);
+    setGuide({ open: true, closing: false });
+  }, []);
+
+  const closeGuide = useCallback(() => {
+    window.clearTimeout(guideTimeout.current);
+    setGuide((g) => ({ ...g, closing: true }));
+    guideTimeout.current = window.setTimeout(() => setGuide({ open: false, closing: false }), 210);
+  }, []);
+
   const setDifficulty = useCallback(
     (label: string) => {
-      setState((s) => ({ ...s, difficulty: label }));
+      deal(label);
       closeDiff();
     },
-    [closeDiff],
+    [deal, closeDiff],
   );
 
   const erase = useCallback(() => {
@@ -136,7 +212,7 @@ export function useSudotiles() {
       const cell = s.board[s.selected];
       if (cell.given) return;
 
-      const correct = SOLUTION[s.selected] === String(n);
+      const correct = s.solution[s.selected] === String(n);
       if (correct) {
         const board = s.board.slice();
         board[s.selected] = {
@@ -189,17 +265,21 @@ export function useSudotiles() {
   const restart = useCallback(() => {
     window.clearTimeout(flashTimeout.current);
     setFlash({ on: false, text: "" });
-    const s = stateRef.current;
-    const next = freshState(s.difficulty);
-    setState(next);
-    stateRef.current = next;
-  }, []);
+    deal(stateRef.current.difficulty);
+  }, [deal]);
+
+  const confirmRefresh = useCallback(() => {
+    restart();
+    closeConfirm();
+  }, [restart, closeConfirm]);
 
   return {
     state,
     flash,
     shaking,
     diff,
+    confirm,
+    guide,
     confettiRef,
     actions: {
       select,
@@ -212,6 +292,11 @@ export function useSudotiles() {
       scribbleToggle,
       placeNum,
       restart,
+      openConfirm,
+      closeConfirm,
+      confirmRefresh,
+      openGuide,
+      closeGuide,
     },
   };
 }
