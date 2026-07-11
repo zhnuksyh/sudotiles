@@ -208,6 +208,9 @@ export function useSudotiles() {
     if (s.selected == null || s.over || s.won) return;
     const cell = s.board[s.selected];
     if (cell.given) return;
+    // A correctly placed number is locked in and can't be erased; only wrong
+    // entries (error) and scribbles can be cleared.
+    if (cell.value !== "" && !cell.error) return;
     const board = s.board.slice();
     board[s.selected] = { ...cell, value: "", error: false, scribbles: Array(9).fill(false) };
     setState({ ...s, board });
@@ -235,6 +238,8 @@ export function useSudotiles() {
       if (s.selected == null || s.over || s.won) return;
       const cell = s.board[s.selected];
       if (cell.given) return;
+      // A correctly placed number is locked; don't allow overwriting it.
+      if (cell.value !== "" && !cell.error) return;
 
       const correct = s.solution[s.selected] === String(n);
       if (correct) {
