@@ -125,18 +125,6 @@ function shuffle<T>(seq: T[]): T[] {
   return shuffled as T[];
 }
 
-function stripDups<T>(seq: T[]): T[] {
-  const set: T[] = [];
-  const seen = new Set<T>();
-  for (const e of seq) {
-    if (!seen.has(e)) {
-      set.push(e);
-      seen.add(e);
-    }
-  }
-  return set;
-}
-
 function forceRange(nr: number, max: number, min: number): number {
   if (nr < min) return min;
   if (nr > max) return max;
@@ -330,66 +318,106 @@ export function solve(board: string, reverse = false): string | false {
   return false;
 }
 
+/* Count solutions of a candidate map, stopping early once `limit` is reached.
+ * Used for the uniqueness check when digging clues out of a full solution. A
+ * puzzle is unique iff this returns exactly 1. */
+function countSolutions(candidates: CandidateMap | false, limit: number): number {
+  if (!candidates) {
+    return 0;
+  }
+
+  // Choose the unfilled square with the fewest candidates (most constrained).
+  let minNrCandidates = 10;
+  let minCandidatesSquare: string | null = null;
+  for (const square of SQUARES) {
+    const nr = candidates[square].length;
+    if (nr > 1 && nr < minNrCandidates) {
+      minNrCandidates = nr;
+      minCandidatesSquare = square;
+    }
+  }
+  // No square with more than one candidate: this is a complete solution.
+  if (minCandidatesSquare === null) {
+    return 1;
+  }
+
+  let count = 0;
+  const minCandidates = candidates[minCandidatesSquare];
+  for (let vi = 0; vi < minCandidates.length; vi++) {
+    const copy: CandidateMap = { ...candidates };
+    count += countSolutions(assign(copy, minCandidatesSquare, minCandidates[vi]), limit - count);
+    if (count >= limit) {
+      return count;
+    }
+  }
+  return count;
+}
+
+/* Whether `board` (81-char string) has exactly one solution. */
+function hasUniqueSolution(board: string): boolean {
+  return countSolutions(getCandidatesMap(board), 2) === 1;
+}
+
+/* Build a complete, valid solved board by filling a blank board with a random
+ * DFS. Returns the 81-character solution. Throws if it can't after a generous
+ * number of attempts (a seeded contradiction should be rare, so this only trips
+ * on something genuinely wrong). */
+function fullSolution(): string {
+  const blankBoard = BLANK_CHAR.repeat(NR_SQUARES);
+  // Seed a handful of random givens so successive boards differ, then solve.
+  // On the rare contradiction, just retry from scratch.
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const candidates = getCandidatesMap(blankBoard) as CandidateMap;
+    let ok = true;
+    for (const square of shuffle(SQUARES).slice(0, 11)) {
+      const options = candidates[square];
+      const pick = options[randRange(options.length)];
+      if (!assign(candidates, square, pick)) {
+        ok = false;
+        break;
+      }
+    }
+    if (!ok) continue;
+    const solved = search(candidates, false);
+    if (solved) {
+      let solution = "";
+      for (const square of SQUARES) {
+        solution += solved[square];
+      }
+      return solution;
+    }
+  }
+  throw new Error("Failed to build a full solution.");
+}
+
 /* Generate a new puzzle as an 81-character board string, where `clues` is the
  * number of given squares (clamped to [17, 81]). Returned boards are solvable
- * and have a unique solution. */
+ * and have a unique solution.
+ *
+ * Works by digging clues out of a complete solution: cells are removed one at a
+ * time and only kept removed while the board still has a unique solution. This
+ * converges in a bounded number of solves for every clue count (unlike blanking
+ * random cells and re-rolling the whole board when the result isn't unique). */
 export function generate(clues: number): string {
-  const difficulty = forceRange(clues, NR_SQUARES, MIN_GIVENS);
+  const target = forceRange(clues, NR_SQUARES, MIN_GIVENS);
 
-  let blankBoard = "";
-  for (let i = 0; i < NR_SQUARES; i++) {
-    blankBoard += BLANK_CHAR;
-  }
-  const candidates = getCandidatesMap(blankBoard) as CandidateMap;
+  const solution = fullSolution();
+  const board = solution.split("");
+  let given = NR_SQUARES;
 
-  const shuffledSquares = shuffle(SQUARES);
-  for (const square of shuffledSquares) {
-    const randCandidate = candidates[square][randRange(candidates[square].length)];
-    if (!assign(candidates, square, randCandidate)) {
-      break;
-    }
-
-    const singleCandidates: string[] = [];
-    for (const s of SQUARES) {
-      if (candidates[s].length === 1) {
-        singleCandidates.push(candidates[s]);
-      }
-    }
-
-    // Enough forced squares, and enough distinct values to avoid trivial boards.
-    if (singleCandidates.length >= difficulty && stripDups(singleCandidates).length >= 8) {
-      let board = "";
-      const givensIdxs: number[] = [];
-      for (let i = 0; i < SQUARES.length; i++) {
-        if (candidates[SQUARES[i]].length === 1) {
-          board += candidates[SQUARES[i]];
-          givensIdxs.push(i);
-        } else {
-          board += BLANK_CHAR;
-        }
-      }
-
-      // Trim down to exactly `difficulty` givens by blanking random extras.
-      const nrGivens = givensIdxs.length;
-      if (nrGivens > difficulty) {
-        const shuffledIdxs = shuffle(givensIdxs);
-        for (let i = 0; i < nrGivens - difficulty; i++) {
-          const target = shuffledIdxs[i];
-          board = board.substring(0, target) + BLANK_CHAR + board.substring(target + 1);
-        }
-      }
-
-      const solution = solve(board);
-      if (solution) {
-        // Unique solution when the reverse solve matches the forward solve.
-        const reverseSolution = solve(board, true);
-        if (reverseSolution === solution) {
-          return board;
-        }
-      }
+  // Try to remove cells in random order; put a cell back if removing it makes
+  // the puzzle non-unique. Stops when we hit the target clue count or run out
+  // of cells that can be safely removed.
+  for (const idx of shuffle([...Array(NR_SQUARES).keys()])) {
+    if (given <= target) break;
+    const saved = board[idx];
+    board[idx] = BLANK_CHAR;
+    if (hasUniqueSolution(board.join(""))) {
+      given--;
+    } else {
+      board[idx] = saved;
     }
   }
 
-  // Contradiction or non-unique board: try again.
-  return generate(difficulty);
+  return board.join("");
 }

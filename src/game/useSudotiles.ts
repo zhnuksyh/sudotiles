@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BASE_POINTS, STREAK_MILESTONE } from "./constants";
-import { dealingState, freshState, readyState } from "./freshState";
+import { dealingState, fallbackState, freshState, readyState } from "./freshState";
 import { loadSettings, saveSettings } from "./settings";
 import type { Settings } from "./settings";
 import type { Cell, GameState } from "./types";
@@ -40,6 +40,12 @@ export function useSudotiles() {
 
   const workerRef = useRef<Worker | null>(null);
   const requestId = useRef(0);
+  const dealTimeout = useRef<number | undefined>(undefined);
+
+  // If the worker takes longer than this to return a puzzle, fall back to the
+  // bundled static puzzle so a request can never leave the board stuck
+  // "dealing" indefinitely. Generation normally finishes in well under 100ms.
+  const DEAL_TIMEOUT_MS = 4000;
 
   useEffect(() => {
     saveSettings(settings);
@@ -77,6 +83,7 @@ export function useSudotiles() {
       window.clearTimeout(diffTimeout.current);
       window.clearTimeout(confirmTimeout.current);
       window.clearTimeout(guideTimeout.current);
+      window.clearTimeout(dealTimeout.current);
     };
   }, []);
 
@@ -88,11 +95,20 @@ export function useSudotiles() {
     setState(next);
     stateRef.current = next;
 
+    window.clearTimeout(dealTimeout.current);
     const id = ++requestId.current;
     const worker = workerRef.current;
     if (worker) {
       const req: WorkerRequest = { id, difficulty };
       worker.postMessage(req);
+      // Safety net: if the worker doesn't respond in time, deal the bundled
+      // puzzle so we never hang on "dealing".
+      dealTimeout.current = window.setTimeout(() => {
+        if (id !== requestId.current) return;
+        const ready = fallbackState(difficulty);
+        setState(ready);
+        stateRef.current = ready;
+      }, DEAL_TIMEOUT_MS);
     } else {
       const ready = freshState(difficulty);
       setState(ready);
@@ -108,6 +124,7 @@ export function useSudotiles() {
       const { id, puzzle } = e.data;
       // Ignore responses for superseded requests.
       if (id !== requestId.current) return;
+      window.clearTimeout(dealTimeout.current);
       const ready = readyState(stateRef.current.difficulty, puzzle);
       setState(ready);
       stateRef.current = ready;
@@ -115,6 +132,7 @@ export function useSudotiles() {
     // Deal the opening puzzle once the worker is live.
     deal(stateRef.current.difficulty);
     return () => {
+      window.clearTimeout(dealTimeout.current);
       worker.terminate();
       workerRef.current = null;
     };

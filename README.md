@@ -10,10 +10,12 @@ deployed to GitHub Pages.
 ## Gameplay
 
 - **Board** — a 9×9 grid grouped into 3×3 boxes on a vignette-lit dark panel.
-- **Generated puzzles** — every board is generated with a unique solution
-  (algorithm adapted from [robatron/sudoku.js](https://github.com/robatron/sudoku.js),
-  MIT). Generation runs in a Web Worker so the UI never blocks; a brief
-  "Dealing…" state shows while a puzzle is prepared.
+- **Generated puzzles** — every board is generated with a unique solution.
+  The board is dug out of a complete solution: a full grid is solved, then
+  cells are removed one at a time and a removal is kept only while the puzzle
+  still has exactly one solution (see [Puzzle generation](#puzzle-generation)).
+  Generation runs in a Web Worker so the UI never blocks; a brief "Dealing…"
+  state shows while a puzzle is prepared.
 - **Difficulty** — Easy / Medium / Expert / Hardcore, mapped to how many clues
   the board starts with (45 / 36 / 30 / 25). Choosing one deals a fresh board.
 - **Locked answers** — a correctly placed number locks in: it can't be erased
@@ -33,6 +35,37 @@ deployed to GitHub Pages.
 - **How to play** — an in-app guide (open-book button) covers the rules, core
   techniques with mini-grid examples, keyboard shortcuts, and beginner video
   tutorials.
+
+## Puzzle generation
+
+Puzzles are built with a **dig-from-solution** algorithm (`src/game/sudoku.ts`):
+
+1. **Build a full solution.** A blank grid is seeded with a handful of random
+   givens and solved by constraint propagation + depth-first search, producing a
+   complete, valid board that differs run to run.
+2. **Dig out clues.** Cells are removed one at a time in random order. After each
+   removal the puzzle is checked for a **unique** solution (a solution count with
+   an early exit at 2); a cell is only kept blank while the board stays unique,
+   and is otherwise restored. Digging stops once the target clue count for the
+   chosen difficulty is reached.
+
+This converges in a bounded number of solves at every difficulty — typically
+well under ~100ms even for Hardcore. It replaces an earlier
+blank-random-cells-and-retry approach that re-rolled the entire board whenever
+the result wasn't unique, which could take seconds (or hang effectively
+indefinitely) at low clue counts.
+
+**Guardrails.** Generation can never leave the board stuck "dealing":
+
+- The full-solution builder is capped at a bounded number of attempts and
+  throws rather than looping forever; `makePuzzle` catches any failure and falls
+  back to a bundled static puzzle.
+- The worker request is backed by a timeout in `useSudotiles.ts` — if a puzzle
+  isn't returned in time, the bundled puzzle is dealt so the UI always recovers.
+
+The constraint-propagation solver and its helpers are adapted (to TypeScript)
+from [robatron/sudoku.js](https://github.com/robatron/sudoku.js) (MIT); the
+dig-from-solution generator and guardrails above are our own.
 
 ## Keyboard shortcuts
 
@@ -92,7 +125,7 @@ src/
     constants.ts       # difficulties + clue counts, scoring, fallback puzzle
     settings.ts        # persisted settings (difficulty, layout, toggles)
     types.ts           # Cell / GameState models
-    sudoku.ts          # puzzle generator + solver (ported, typed)
+    sudoku.ts          # dig-from-solution generator + ported constraint solver
     sudoku.worker.ts   # Web Worker wrapper around generation
     freshState.ts      # dealing / ready game state
     derive.ts          # board-view derivation (peers, highlights, boxes)

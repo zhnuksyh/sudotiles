@@ -82,3 +82,9 @@ export function readyState(difficulty: string, puzzle: Puzzle): GameState {
 export function freshState(difficulty = DEFAULT_DIFFICULTY): GameState {
   return readyState(difficulty, makePuzzle(difficulty));
 }
+
+/* A ready state built from the bundled static puzzle, with no generation work.
+ * Used as an instant fallback if a worker request is ever too slow to respond. */
+export function fallbackState(difficulty = DEFAULT_DIFFICULTY): GameState {
+  return readyState(difficulty, { givens: GIVENS.replace(/0/g, "."), solution: SOLUTION });
+}
