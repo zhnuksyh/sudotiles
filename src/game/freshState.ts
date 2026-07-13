@@ -45,6 +45,7 @@ const BLANK_GIVENS = ".".repeat(81);
 function baseState(difficulty: string): Omit<GameState, "board" | "solution" | "dealing"> {
   return {
     selected: null,
+    multiSelected: [],
     pencil: false,
     started: false,
     hearts: MAX_HEARTS,

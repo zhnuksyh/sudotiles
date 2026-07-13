@@ -26,7 +26,7 @@ export interface CellView {
 export function deriveCellView(state: GameState, idx: number, guides: boolean): CellView {
   const cell = state.board[idx];
   const sel = state.selected;
-  const isSelected = idx === sel;
+  const isSelected = idx === sel || state.multiSelected.includes(idx);
   const selCell = sel != null ? state.board[sel] : null;
   const selVal = selCell ? selCell.value : "";
   const sr = sel != null ? Math.floor(sel / 9) : -1;

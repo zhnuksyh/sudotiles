@@ -1,22 +1,14 @@
-import type { MouseEvent } from "react";
 import type { CellView } from "../game/derive";
 
 interface CellProps {
   cell: CellView;
-  onSelect: (index: number) => void;
   animate: boolean;
 }
 
-export default function Cell({ cell, onSelect, animate }: CellProps) {
-  const handleContext = (e: MouseEvent) => {
-    e.preventDefault();
-    onSelect(cell.index);
-  };
-
+export default function Cell({ cell, animate }: CellProps) {
   return (
     <div
-      onClick={() => onSelect(cell.index)}
-      onContextMenu={handleContext}
+      data-cell={cell.index}
       className="relative flex aspect-square min-w-0 cursor-pointer items-center justify-center rounded-[9px] bg-[#211f1d] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_1px_2px_rgba(0,0,0,0.35)] transition-colors duration-[120ms] ease-linear hover:bg-[#2a2825]"
     >
       {cell.isPeer && (

@@ -12,6 +12,8 @@ export interface GameState {
   solution: string;
   dealing: boolean;
   selected: number | null;
+  /* All selected cells (drag to multi-select); `selected` is the anchor. */
+  multiSelected: number[];
   pencil: boolean;
   started: boolean;
   hearts: number;
