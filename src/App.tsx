@@ -9,6 +9,7 @@ import Hud from "./components/Hud";
 import NumberPad from "./components/NumberPad";
 import SettingsModal from "./components/SettingsModal";
 import StreakFlourish from "./components/StreakFlourish";
+import UnitFlourish from "./components/UnitFlourish";
 import { useSudotiles } from "./game/useSudotiles";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
     state,
     settings,
     flash,
+    unitFlash,
     shaking,
     diff,
     confirm,
@@ -119,6 +121,8 @@ function App() {
 
       <StreakFlourish show={flash.on} text={flash.text} animate={animate} />
 
+      <UnitFlourish show={unitFlash.on} text={unitFlash.text} animate={animate} />
+
       <SettingsModal
         open={diff.open}
         closing={diff.closing}
@@ -130,6 +134,7 @@ function App() {
         onToggleTimer={actions.toggleTimer}
         onToggleKeyboard={actions.toggleKeyboard}
         onToggleAnimations={actions.toggleAnimations}
+        onToggleSounds={actions.toggleSounds}
         onToggleGuides={actions.toggleGuides}
         onClose={actions.closeDiff}
       />

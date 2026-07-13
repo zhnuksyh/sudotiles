@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BASE_POINTS, STREAK_MILESTONE } from "./constants";
+import { BASE_POINTS, STREAK_MILESTONE, streakMultiplier } from "./constants";
 import { dealingState, fallbackState, freshState, readyState } from "./freshState";
 import { addHistoryEntry } from "./history";
 import { deliverShareUrl, readSharedPuzzle, shareUrlFor } from "./share";
 import { applyTheme, loadSettings, saveSettings } from "./settings";
+import { setSoundsEnabled, sounds } from "./sounds";
 import { TUTORIAL_STEPS } from "./tutorial";
 import type { Settings, ThemeId } from "./settings";
 import type { Cell, GameState } from "./types";
@@ -28,6 +29,24 @@ function clearPeerScribbles(board: Cell[], selected: number, n: number) {
       board[i] = { ...b, scribbles: scr };
     }
   }
+}
+
+/* Units (row/column/box) that the cell at `idx` belongs to and that are now
+ * fully and correctly filled. Called right after a correct placement, so any
+ * complete unit is newly complete. */
+function completedUnits(board: Cell[], idx: number): string[] {
+  const filled = (i: number) => board[i].value !== "" && !board[i].error;
+  const r = Math.floor(idx / 9);
+  const c = idx % 9;
+  const units: string[] = [];
+  if (Array.from({ length: 9 }, (_, k) => r * 9 + k).every(filled)) units.push("Row");
+  if (Array.from({ length: 9 }, (_, k) => k * 9 + c).every(filled)) units.push("Column");
+  const br = Math.floor(r / 3) * 3;
+  const bc = Math.floor(c / 3) * 3;
+  const box: number[] = [];
+  for (let dr = 0; dr < 3; dr++) for (let dc = 0; dc < 3; dc++) box.push((br + dr) * 9 + bc + dc);
+  if (box.every(filled)) units.push("Box");
+  return units;
 }
 
 export function useSudotiles() {
@@ -68,7 +87,13 @@ export function useSudotiles() {
     applyTheme(settings.theme);
   }, [settings.theme]);
 
+  useEffect(() => {
+    setSoundsEnabled(settings.soundsEnabled);
+  }, [settings.soundsEnabled]);
+
   const [flash, setFlash] = useState({ on: false, text: "" });
+  // Brief "Row complete!"-style popup when a unit gets fully filled.
+  const [unitFlash, setUnitFlash] = useState({ on: false, text: "" });
   const [shaking, setShaking] = useState(false);
   const [diff, setDiff] = useState({ open: false, closing: false });
   const [confirm, setConfirm] = useState({ open: false, closing: false });
@@ -87,6 +112,7 @@ export function useSudotiles() {
 
   const confettiRef = useRef<ConfettiHandle>(null);
   const flashTimeout = useRef<number | undefined>(undefined);
+  const unitFlashTimeout = useRef<number | undefined>(undefined);
   const shakeTimeout = useRef<number | undefined>(undefined);
   const diffTimeout = useRef<number | undefined>(undefined);
   const confirmTimeout = useRef<number | undefined>(undefined);
@@ -105,6 +131,7 @@ export function useSudotiles() {
   useEffect(() => {
     return () => {
       window.clearTimeout(flashTimeout.current);
+      window.clearTimeout(unitFlashTimeout.current);
       window.clearTimeout(shakeTimeout.current);
       window.clearTimeout(diffTimeout.current);
       window.clearTimeout(confirmTimeout.current);
@@ -182,6 +209,15 @@ export function useSudotiles() {
     setFlash({ on: true, text });
     flashTimeout.current = window.setTimeout(() => setFlash({ on: false, text: "" }), 1300);
     confettiRef.current?.fire(90, 0.5, 0.42);
+  }, []);
+
+  const showUnitFlash = useCallback((units: string[]) => {
+    window.clearTimeout(unitFlashTimeout.current);
+    setUnitFlash({ on: true, text: `${units.join(" & ")} complete!` });
+    unitFlashTimeout.current = window.setTimeout(
+      () => setUnitFlash({ on: false, text: "" }),
+      1300,
+    );
   }, []);
 
   const celebrate = useCallback(() => {
@@ -359,6 +395,10 @@ export function useSudotiles() {
     setSettings((prev) => ({ ...prev, animationsEnabled: !prev.animationsEnabled }));
   }, []);
 
+  const toggleSounds = useCallback(() => {
+    setSettings((prev) => ({ ...prev, soundsEnabled: !prev.soundsEnabled }));
+  }, []);
+
   // The cells an edit applies to: the whole drag selection, or just the
   // anchor when nothing was dragged.
   const selectionOf = (s: GameState): number[] => {
@@ -376,6 +416,7 @@ export function useSudotiles() {
       return !cell.given && (cell.value === "" || cell.error);
     });
     if (targets.length === 0) return;
+    sounds.erase();
     const board = s.board.slice();
     for (const i of targets) {
       board[i] = { ...board[i], value: "", error: false, scribbles: Array(9).fill(false) };
@@ -391,6 +432,7 @@ export function useSudotiles() {
       return !cell.given && !cell.value;
     });
     if (targets.length === 0) return;
+    sounds.scribble();
     // Toggle in unison: if any target is missing the note, add it everywhere;
     // otherwise all targets have it, so clear it everywhere.
     const turnOn = targets.some((i) => !s.board[i].scribbles[n - 1]);
@@ -443,12 +485,13 @@ export function useSudotiles() {
         const streak = s.streak + 1;
         const won = board.every((b) => b.value !== "" && !b.error);
         const milestone = streak % STREAK_MILESTONE === 0 && !won;
+        const units = won ? [] : completedUnits(board, s.selected);
         const next: GameState = {
           ...s,
           board,
           // Placing a value only affects the anchor, so drop any drag selection.
           multiSelected: [s.selected],
-          score: s.score + BASE_POINTS,
+          score: s.score + BASE_POINTS * streakMultiplier(streak),
           streak,
           won,
           started: true,
@@ -456,6 +499,12 @@ export function useSudotiles() {
         setState(next);
         stateRef.current = next;
         if (tutorialRef.current != null) gotoTutorialStep(tutorialRef.current + 1);
+        // One sound per placement: the most celebratory event wins.
+        if (won) sounds.win();
+        else if (milestone) sounds.streak();
+        else if (units.length > 0) sounds.unit();
+        else sounds.blip();
+        if (units.length > 0 && !milestone) showUnitFlash(units);
         if (won) {
           celebrate();
           addHistoryEntry({
@@ -469,6 +518,7 @@ export function useSudotiles() {
         } else if (milestone) flourish(`+${streak} STREAK`);
       } else {
         shake();
+        sounds.error();
         const board = s.board.slice();
         board[s.selected] = {
           ...board[s.selected],
@@ -491,7 +541,7 @@ export function useSudotiles() {
         stateRef.current = next;
       }
     },
-    [scribbleToggle, shake, flourish, celebrate, showNotice, gotoTutorialStep],
+    [scribbleToggle, shake, flourish, celebrate, showNotice, gotoTutorialStep, showUnitFlash],
   );
 
   // Keyboard shortcuts: 1-9 place a number, Space erases, Tab toggles scribble
@@ -532,6 +582,7 @@ export function useSudotiles() {
     state,
     settings,
     flash,
+    unitFlash,
     shaking,
     diff,
     confirm,
@@ -554,6 +605,7 @@ export function useSudotiles() {
       toggleTimer,
       toggleKeyboard,
       toggleAnimations,
+      toggleSounds,
       erase,
       scribbleToggle,
       placeNum,

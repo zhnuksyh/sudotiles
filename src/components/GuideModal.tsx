@@ -193,7 +193,10 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
             peers and matching numbers of the selected cell.
           </li>
           <li>A correct number locks into place — it can't be erased or overwritten.</li>
-          <li>Wrong answers cost a heart — build a streak of correct placements for bonus flourishes.</li>
+          <li>
+            Wrong answers cost a heart and reset your streak — every 10 correct placements in a row
+            raise your score multiplier, up to ×5.
+          </li>
         </ul>
 
         <SectionTitle>Keyboard shortcuts</SectionTitle>

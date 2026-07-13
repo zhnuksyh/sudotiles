@@ -1,5 +1,5 @@
 import { HeartEmptyIcon, HeartFilledIcon } from "./icons";
-import { MAX_HEARTS } from "../game/constants";
+import { MAX_HEARTS, streakMultiplier } from "../game/constants";
 
 interface HudProps {
   hearts: number;
@@ -14,6 +14,7 @@ export default function Hud({ hearts, score, elapsed, streak, showLives, showTim
   const mm = Math.floor(elapsed / 60);
   const ss = String(elapsed % 60).padStart(2, "0");
   const timeLabel = `${mm}:${ss}`;
+  const mult = streakMultiplier(streak);
 
   return (
     <div className="grid w-full max-w-[min(560px,90vw)] grid-cols-[1fr_auto_1fr] items-center">
@@ -41,8 +42,13 @@ export default function Hud({ hearts, score, elapsed, streak, showLives, showTim
       </div>
       <div className="flex flex-col items-end justify-self-end">
         <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">STREAK</div>
-        <span className="text-[26px] leading-[1.05] font-semibold text-[#d8d3ca] sm:text-[32px]">
+        <span className="flex items-baseline gap-1.5 text-[26px] leading-[1.05] font-semibold text-[#d8d3ca] sm:text-[32px]">
           {streak}
+          {mult > 1 && (
+            <span className="text-[15px] font-semibold text-[var(--accent)] sm:text-[17px]">
+              ×{mult}
+            </span>
+          )}
         </span>
       </div>
     </div>

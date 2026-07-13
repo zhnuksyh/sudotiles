@@ -22,6 +22,7 @@ interface SettingsModalProps {
   onToggleTimer: () => void;
   onToggleKeyboard: () => void;
   onToggleAnimations: () => void;
+  onToggleSounds: () => void;
   onToggleGuides: () => void;
   onClose: () => void;
 }
@@ -230,6 +231,7 @@ export default function SettingsModal({
   onToggleTimer,
   onToggleKeyboard,
   onToggleAnimations,
+  onToggleSounds,
   onToggleGuides,
   onClose,
 }: SettingsModalProps) {
@@ -285,6 +287,7 @@ export default function SettingsModal({
           <Toggle on={settings.livesEnabled} onChange={onToggleLives} label="Lives" />
           <Toggle on={settings.timerEnabled} onChange={onToggleTimer} label="Timer" />
           <Toggle on={settings.animationsEnabled} onChange={onToggleAnimations} label="Animations" />
+          <Toggle on={settings.soundsEnabled} onChange={onToggleSounds} label="Sounds" />
           {!isTouchDevice && (
             <Toggle
               on={settings.keyboardEnabled}

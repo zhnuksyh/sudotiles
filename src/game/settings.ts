@@ -35,6 +35,7 @@ export interface Settings {
   keyboardEnabled: boolean;
   animationsEnabled: boolean;
   guidesEnabled: boolean;
+  soundsEnabled: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -46,6 +47,7 @@ export const DEFAULT_SETTINGS: Settings = {
   keyboardEnabled: true,
   animationsEnabled: true,
   guidesEnabled: true,
+  soundsEnabled: true,
 };
 
 const STORAGE_KEY = "sudotiles:settings";

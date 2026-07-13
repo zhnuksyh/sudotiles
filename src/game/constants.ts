@@ -44,5 +44,13 @@ export function cluesFor(difficulty: string): number {
 export const STREAK_MILESTONE = 10;
 export const MAX_HEARTS = 3;
 
+/* Every STREAK_MILESTONE correct placements raise the score multiplier by
+ * one, capped: streak 0-9 scores x1, 10-19 x2, ... 40+ x5. */
+export const MAX_STREAK_MULTIPLIER = 5;
+
+export function streakMultiplier(streak: number): number {
+  return Math.min(1 + Math.floor(streak / STREAK_MILESTONE), MAX_STREAK_MULTIPLIER);
+}
+
 export const APP_VERSION = "1.0.0";
 export const REPO_URL = "https://github.com/zhnuksyh/sudotiles";
