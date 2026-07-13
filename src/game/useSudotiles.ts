@@ -114,6 +114,8 @@ export function useSudotiles() {
   const confettiRef = useRef<ConfettiHandle>(null);
   const flashTimeout = useRef<number | undefined>(undefined);
   const unitFlashTimeout = useRef<number | undefined>(undefined);
+  // Defers the streak flourish while a unit-complete pill is showing.
+  const chainTimeout = useRef<number | undefined>(undefined);
   const shakeTimeout = useRef<number | undefined>(undefined);
   const diffTimeout = useRef<number | undefined>(undefined);
   const confirmTimeout = useRef<number | undefined>(undefined);
@@ -133,6 +135,7 @@ export function useSudotiles() {
     return () => {
       window.clearTimeout(flashTimeout.current);
       window.clearTimeout(unitFlashTimeout.current);
+      window.clearTimeout(chainTimeout.current);
       window.clearTimeout(shakeTimeout.current);
       window.clearTimeout(diffTimeout.current);
       window.clearTimeout(confirmTimeout.current);
@@ -148,6 +151,7 @@ export function useSudotiles() {
   // worker responses (from a superseded request) are ignored via `requestId`.
   const deal = useCallback((difficulty: string) => {
     setTutorialStep(null); // dealing a new board leaves the tutorial
+    window.clearTimeout(chainTimeout.current); // drop any queued flourish
     const next = dealingState(difficulty);
     setState(next);
     stateRef.current = next;
@@ -524,13 +528,11 @@ export function useSudotiles() {
         setState(next);
         stateRef.current = next;
         if (tutorialRef.current != null) gotoTutorialStep(tutorialRef.current + 1);
-        // One sound per placement: the most celebratory event wins.
-        if (won) sounds.win();
-        else if (milestone) sounds.streak();
-        else if (units.length > 0) sounds.unit();
-        else sounds.blip();
-        if (units.length > 0 && !milestone) showUnitFlash(units);
+        // Celebrations, biggest event first; when a unit fill and a streak
+        // milestone land on the same placement they play one by one — the
+        // fill happened first, so its pill shows, then the streak flourish.
         if (won) {
+          sounds.win();
           celebrate();
           addHistoryEntry({
             date: new Date().toISOString(),
@@ -540,7 +542,23 @@ export function useSudotiles() {
             givens: board.map((c) => (c.given ? c.value : ".")).join(""),
             solution: s.solution,
           });
-        } else if (milestone) flourish(`+${streak} STREAK`);
+        } else if (milestone && units.length > 0) {
+          sounds.unit();
+          showUnitFlash(units);
+          window.clearTimeout(chainTimeout.current);
+          chainTimeout.current = window.setTimeout(() => {
+            sounds.streak();
+            flourish(`+${streak} STREAK`);
+          }, 1350);
+        } else if (milestone) {
+          sounds.streak();
+          flourish(`+${streak} STREAK`);
+        } else if (units.length > 0) {
+          sounds.unit();
+          showUnitFlash(units);
+        } else {
+          sounds.blip();
+        }
       } else {
         shake();
         sounds.error();
