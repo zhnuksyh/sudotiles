@@ -44,17 +44,36 @@ function App() {
     />
   );
 
+  // Transient popups (streak, unit-complete, notices) anchor to the board's
+  // middle, so they are wrapped together with it.
   const board = (
-    <Board
-      state={state}
-      onSelect={actions.select}
-      onDragSelect={actions.dragSelect}
-      animate={animate}
-      guides={settings.guidesEnabled}
-      tutorialStep={tutorialStep}
-      onTutorialNext={actions.nextTutorialStep}
-      onTutorialSkip={actions.skipTutorial}
-    />
+    <div className="relative">
+      <Board
+        state={state}
+        onSelect={actions.select}
+        onDragSelect={actions.dragSelect}
+        animate={animate}
+        guides={settings.guidesEnabled}
+        tutorialStep={tutorialStep}
+        onTutorialNext={actions.nextTutorialStep}
+        onTutorialSkip={actions.skipTutorial}
+      />
+
+      <StreakFlourish show={flash.on} text={flash.text} animate={animate} />
+
+      <UnitFlourish show={unitFlash.on} text={unitFlash.text} animate={animate} />
+
+      {notice && (
+        <div className="pointer-events-none absolute inset-0 z-[60] flex items-center justify-center">
+          <div
+            className="rounded-full bg-[var(--menu0)] px-5 py-2.5 text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
+            style={{ animation: animate ? "st-rise 0.25s ease-out both" : undefined }}
+          >
+            {notice}
+          </div>
+        </div>
+      )}
+    </div>
   );
 
   return (
@@ -130,10 +149,6 @@ function App() {
 
       <Confetti ref={confettiRef} />
 
-      <StreakFlourish show={flash.on} text={flash.text} animate={animate} />
-
-      <UnitFlourish show={unitFlash.on} text={unitFlash.text} animate={animate} />
-
       <SettingsModal
         open={diff.open}
         closing={diff.closing}
@@ -177,14 +192,6 @@ function App() {
         onClose={actions.closeHistory}
       />
 
-      {notice && (
-        <div
-          className="pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-[var(--menu0)] px-5 py-2.5 text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
-          style={{ animation: animate ? "st-rise 0.25s ease-out both" : undefined }}
-        >
-          {notice}
-        </div>
-      )}
 
       {state.over && (
         <GameOverlay
