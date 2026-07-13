@@ -162,6 +162,18 @@ function BackgroundPicker({
   const fileRef = useRef<HTMLInputElement>(null);
   const customActive = value === "custom";
 
+  // Non-selected tiles get an accent outline on hover (inline boxShadow must
+  // stay unset on them or it would override the hover class).
+  const tileClass = (active: boolean) =>
+    `flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-none px-1 py-2.5 transition-[transform,filter,box-shadow] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.15] active:translate-y-0 ${
+      active ? "" : "hover:shadow-[0_0_0_1.5px_rgba(var(--accent-rgb),0.55)_inset]"
+    }`;
+
+  const presets: { id: ThemeChoice; label: string; title: string; surface: string; accent: string }[] = [
+    { id: "ember", label: "Ember", title: "The default warm dark look", surface: "#211f1d", accent: "#dcb887" },
+    { id: "void", label: "Void", title: "Black & white", surface: "#1f1f1f", accent: "#e6e6e6" },
+  ];
+
   return (
     <>
       <input
@@ -176,34 +188,40 @@ function BackgroundPicker({
         }}
       />
       <div className="grid grid-cols-4 gap-2">
-        <button
-          onClick={() => onChange("default")}
-          title="The default dark look"
-          className="flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-none px-1 py-2.5 transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.15] active:translate-y-0"
-          style={{
-            background: customActive ? "transparent" : ACTIVE_BG,
-            boxShadow: customActive ? "none" : ACTIVE_SHADOW,
-          }}
-        >
-          <span
-            className="relative h-[30px] w-[30px] rounded-full"
-            style={{
-              background: "#211f1d",
-              boxShadow: "0 0 0 1px rgba(255,255,255,0.12) inset, 0 2px 5px rgba(0,0,0,0.4)",
-            }}
-          >
-            <span
-              className="absolute right-[3px] bottom-[3px] h-[12px] w-[12px] rounded-full"
-              style={{ background: "#dcb887" }}
-            />
-          </span>
-          <span
-            className="text-[11.5px] font-medium"
-            style={{ color: customActive ? "#8a837a" : ACTIVE_COLOR }}
-          >
-            Default
-          </span>
-        </button>
+        {presets.map((p) => {
+          const active = value === p.id;
+          return (
+            <button
+              key={p.id}
+              onClick={() => onChange(p.id)}
+              title={p.title}
+              className={tileClass(active)}
+              style={{
+                background: active ? ACTIVE_BG : "transparent",
+                boxShadow: active ? ACTIVE_SHADOW : undefined,
+              }}
+            >
+              <span
+                className="relative h-[30px] w-[30px] rounded-full"
+                style={{
+                  background: p.surface,
+                  boxShadow: "0 0 0 1px rgba(255,255,255,0.12) inset, 0 2px 5px rgba(0,0,0,0.4)",
+                }}
+              >
+                <span
+                  className="absolute right-[3px] bottom-[3px] h-[12px] w-[12px] rounded-full"
+                  style={{ background: p.accent }}
+                />
+              </span>
+              <span
+                className="text-[11.5px] font-medium"
+                style={{ color: active ? ACTIVE_COLOR : "#8a837a" }}
+              >
+                {p.label}
+              </span>
+            </button>
+          );
+        })}
         <button
           onClick={() => {
             // No picture yet (or re-tapping the active tile): open the picker.
@@ -211,10 +229,10 @@ function BackgroundPicker({
             else onChange("custom");
           }}
           title={customBg ? "Use your picture (tap again to change it)" : "Upload a background picture"}
-          className="flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-none px-1 py-2.5 transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.15] active:translate-y-0"
+          className={tileClass(customActive)}
           style={{
             background: customActive ? ACTIVE_BG : "transparent",
-            boxShadow: customActive ? ACTIVE_SHADOW : "none",
+            boxShadow: customActive ? ACTIVE_SHADOW : undefined,
           }}
         >
           <span

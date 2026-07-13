@@ -30,6 +30,30 @@
   --menu1: #1e1b17;
 }
 
+/* Void: pure black & white — greyscale surfaces, no warm accent. */
+[data-theme="void"] {
+  --accent: #e6e6e6;
+  --accent-strong: #cfcfcf;
+  --accent-rgb: 224, 224, 224;
+  --bg0: #161616;
+  --bg1: #0f0f0f;
+  --bg2: #090909;
+  --board0: #191919;
+  --board1: #111111;
+  --cell: #1f1f1f;
+  --cell-hover: #282828;
+  --panel0: #1e1e1e;
+  --panel1: #151515;
+  --row0: #262626;
+  --row1: #1c1c1c;
+  --pad0: #242424;
+  --pad1: #1a1a1a;
+  --ctl0: #202020;
+  --ctl1: #171717;
+  --menu0: #292929;
+  --menu1: #1c1c1c;
+}
+
 html,
 body {
   margin: 0;

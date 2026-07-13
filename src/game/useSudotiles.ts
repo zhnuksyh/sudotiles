@@ -401,8 +401,8 @@ export function useSudotiles() {
   const removeCustomBackground = useCallback(() => {
     clearCustomTheme();
     setCustomBg(null);
-    setSettings((prev) => ({ ...prev, theme: "default" }));
-    applyTheme("default");
+    setSettings((prev) => ({ ...prev, theme: "ember" }));
+    applyTheme("ember");
   }, []);
 
   const toggleLives = useCallback(() => {
