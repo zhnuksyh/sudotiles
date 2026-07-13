@@ -177,6 +177,10 @@ export default function GuideModal({ open, closing, animate, onClose }: GuideMod
             candidate scribbles in a cell.
           </li>
           <li>
+            Drag across cells to select several at once — a scribble (or erase) then applies to all
+            of them.
+          </li>
+          <li>
             Turn on <span className="text-[#dcb887]">Show guide</span> in Settings to highlight the
             peers and matching numbers of the selected cell.
           </li>

@@ -1,4 +1,4 @@
-import { BookIcon, EraserIcon, GearIcon, PencilIcon, RefreshIcon } from "./icons";
+import { BookIcon, EraserIcon, GearIcon, HistoryIcon, PencilIcon, RefreshIcon, ShareIcon } from "./icons";
 
 const ACTIVE_BG = "rgba(224,170,96,0.12)";
 const ACTIVE_SHADOW = "0 0 0 2px rgba(224,170,96,0.65) inset";
@@ -14,6 +14,8 @@ interface ControlsProps {
   onOpenDiff: () => void;
   onOpenGuide: () => void;
   onRefresh: () => void;
+  onShare: () => void;
+  onOpenHistory: () => void;
   orientation?: "horizontal" | "vertical";
 }
 
@@ -27,6 +29,8 @@ export default function Controls({
   onOpenDiff,
   onOpenGuide,
   onRefresh,
+  onShare,
+  onOpenHistory,
   orientation = "horizontal",
 }: ControlsProps) {
   const vertical = orientation === "vertical";
@@ -79,6 +83,28 @@ export default function Controls({
     </button>
   );
 
+  const shareBtn = (
+    <button
+      onClick={onShare}
+      title="Share this puzzle"
+      className={`${buttonBase} flex items-center justify-center py-[11px]`}
+      style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW, color: IDLE_COLOR }}
+    >
+      <ShareIcon />
+    </button>
+  );
+
+  const historyBtn = (
+    <button
+      onClick={onOpenHistory}
+      title="Solved history"
+      className={`${buttonBase} flex items-center justify-center py-[11px]`}
+      style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW, color: IDLE_COLOR }}
+    >
+      <HistoryIcon />
+    </button>
+  );
+
   const gearBtn = (
     <button
       onClick={onOpenDiff}
@@ -91,16 +117,18 @@ export default function Controls({
   );
 
   // Right-column layout uses a compact 3-wide grid; the default bottom layout
-  // spreads the five buttons evenly in a single row.
+  // spreads the seven buttons evenly in a single row.
   const wrapClass = vertical
     ? "grid grid-cols-3 items-stretch gap-2"
-    : "grid grid-cols-5 items-stretch gap-1.5 sm:gap-2";
+    : "grid grid-cols-7 items-stretch gap-1.5 sm:gap-2";
 
   return (
     <div className={wrapClass}>
       {guideBtn}
       {pencilBtn}
       {eraseBtn}
+      {shareBtn}
+      {historyBtn}
       {refreshBtn}
       {gearBtn}
     </div>

@@ -1,6 +1,7 @@
-import { DIFFICULTIES } from "../game/constants";
+import { useState } from "react";
+import { APP_VERSION, DIFFICULTIES, REPO_URL } from "../game/constants";
 import type { NumpadPosition, Settings } from "../game/settings";
-import { CloseIcon } from "./icons";
+import { ChevronDownIcon, CloseIcon, GitHubIcon } from "./icons";
 
 const ACTIVE_BG = "rgba(226,224,220,0.10)";
 const ACTIVE_SHADOW = "0 0 0 2px rgba(214,210,203,0.55) inset";
@@ -55,6 +56,85 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: () => void; la
         />
       </span>
     </button>
+  );
+}
+
+/* Custom difficulty dropdown styled to match the app (no native <select>). */
+function DifficultyDropdown({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (label: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const current = DIFFICULTIES.find((d) => d.label === value) ?? DIFFICULTIES[1];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-[14px] border-none px-4 py-[13px] text-left transition-[filter] duration-100 ease-in-out hover:brightness-[1.12]"
+        style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW }}
+      >
+        <span className="flex flex-col gap-0.5">
+          <span className="text-[16px] font-semibold" style={{ color: IDLE_COLOR }}>
+            {current.label}
+          </span>
+          <span className="text-[12px] font-normal text-[#8a837a]">{current.desc}</span>
+        </span>
+        <span
+          className="shrink-0 text-[#8a837a] transition-transform duration-150"
+          style={{ transform: open ? "rotate(180deg)" : "none" }}
+        >
+          <ChevronDownIcon />
+        </span>
+      </button>
+
+      {open && (
+        <>
+          {/* Click-away layer to close the menu. */}
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div
+            role="listbox"
+            className="absolute top-[calc(100%+6px)] right-0 left-0 z-20 flex flex-col gap-1 rounded-[14px] bg-gradient-to-b from-[#2b2822] to-[#1e1b17] p-1.5 shadow-[0_18px_40px_-10px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)_inset]"
+            style={{ animation: "st-drop 0.18s ease-out both" }}
+          >
+            {DIFFICULTIES.map((d) => {
+              const active = d.label === value;
+              return (
+                <button
+                  key={d.label}
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => {
+                    setOpen(false);
+                    if (!active) onChange(d.label);
+                  }}
+                  className={`flex cursor-pointer flex-col gap-0.5 rounded-[10px] border-none px-3 py-2.5 text-left transition-[filter,box-shadow] duration-100 ease-in-out hover:brightness-[1.15] ${
+                    active ? "" : "hover:shadow-[0_0_0_1.5px_rgba(224,170,96,0.55)_inset]"
+                  }`}
+                  style={{
+                    background: active ? ACTIVE_BG : "transparent",
+                    boxShadow: active ? ACTIVE_SHADOW : undefined,
+                  }}
+                >
+                  <span
+                    className="text-[15px] font-semibold"
+                    style={{ color: active ? ACTIVE_COLOR : IDLE_COLOR }}
+                  >
+                    {d.label}
+                  </span>
+                  <span className="text-[11.5px] font-normal text-[#8a837a]">{d.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -146,30 +226,7 @@ export default function SettingsModal({
         <div className="text-[20px] font-semibold text-[#ecebe8]">Settings</div>
 
         <SectionLabel>Difficulty</SectionLabel>
-        <div className="flex flex-col gap-2">
-          {DIFFICULTIES.map((d) => {
-            const active = d.label === settings.difficulty;
-            return (
-              <button
-                key={d.label}
-                onClick={() => onSelectDifficulty(d.label)}
-                className="flex cursor-pointer flex-col gap-0.5 rounded-[14px] border-none px-4 py-[13px] text-left transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.12] active:translate-y-0"
-                style={{
-                  background: active ? ACTIVE_BG : IDLE_BG,
-                  boxShadow: active ? ACTIVE_SHADOW : IDLE_SHADOW,
-                }}
-              >
-                <span
-                  className="text-[16px] font-semibold"
-                  style={{ color: active ? ACTIVE_COLOR : IDLE_COLOR }}
-                >
-                  {d.label}
-                </span>
-                <span className="text-[12px] font-normal text-[#8a837a]">{d.desc}</span>
-              </button>
-            );
-          })}
-        </div>
+        <DifficultyDropdown value={settings.difficulty} onChange={onSelectDifficulty} />
 
         <SectionLabel>Number pad</SectionLabel>
         <Segmented value={settings.numpadPosition} onChange={onSetNumpadPosition} />
@@ -187,6 +244,19 @@ export default function SettingsModal({
               label="Keyboard shortcuts"
             />
           )}
+        </div>
+
+        <div className="mt-5 flex items-center justify-between border-t border-white/[0.06] pt-4">
+          <span className="text-[12px] text-[#7d766c]">Sudotiles v{APP_VERSION}</span>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noreferrer"
+            title="View source on GitHub"
+            className="flex items-center justify-center rounded-[10px] bg-white/[0.06] p-2 text-[#b3ada3] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+          >
+            <GitHubIcon />
+          </a>
         </div>
       </div>
     </div>

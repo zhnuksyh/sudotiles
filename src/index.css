@@ -106,6 +106,16 @@ button {
     opacity: 1;
   }
 }
+@keyframes st-drop {
+  from {
+    transform: translateY(-8px) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
 @keyframes st-fadeout {
   from {
     opacity: 1;

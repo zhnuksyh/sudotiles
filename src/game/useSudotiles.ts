@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BASE_POINTS, STREAK_MILESTONE } from "./constants";
 import { dealingState, fallbackState, freshState, readyState } from "./freshState";
+import { addHistoryEntry } from "./history";
+import { deliverShareUrl, readSharedPuzzle, shareUrlFor } from "./share";
 import { loadSettings, saveSettings } from "./settings";
 import type { Settings } from "./settings";
 import type { Cell, GameState } from "./types";
@@ -32,9 +34,14 @@ export function useSudotiles() {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
-  const [state, setState] = useState<GameState>(() =>
-    supportsWorker ? dealingState(settings.difficulty) : freshState(settings.difficulty),
-  );
+  // A puzzle arriving via a share link takes precedence over generating one.
+  const sharedRef = useRef(typeof window === "undefined" ? null : readSharedPuzzle());
+
+  const [state, setState] = useState<GameState>(() => {
+    const shared = sharedRef.current;
+    if (shared) return readyState(shared.difficulty, shared.puzzle);
+    return supportsWorker ? dealingState(settings.difficulty) : freshState(settings.difficulty);
+  });
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -56,10 +63,12 @@ export function useSudotiles() {
   const [diff, setDiff] = useState({ open: false, closing: false });
   const [confirm, setConfirm] = useState({ open: false, closing: false });
   const [guide, setGuide] = useState({ open: false, closing: false });
+  const [history, setHistory] = useState({ open: false, closing: false });
+  const [notice, setNotice] = useState("");
 
   // Track whether any modal is open so keyboard shortcuts stay dormant then.
   const anyModalOpenRef = useRef(false);
-  anyModalOpenRef.current = diff.open || confirm.open || guide.open;
+  anyModalOpenRef.current = diff.open || confirm.open || guide.open || history.open;
 
   const confettiRef = useRef<ConfettiHandle>(null);
   const flashTimeout = useRef<number | undefined>(undefined);
@@ -67,6 +76,8 @@ export function useSudotiles() {
   const diffTimeout = useRef<number | undefined>(undefined);
   const confirmTimeout = useRef<number | undefined>(undefined);
   const guideTimeout = useRef<number | undefined>(undefined);
+  const historyTimeout = useRef<number | undefined>(undefined);
+  const noticeTimeout = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -83,6 +94,8 @@ export function useSudotiles() {
       window.clearTimeout(diffTimeout.current);
       window.clearTimeout(confirmTimeout.current);
       window.clearTimeout(guideTimeout.current);
+      window.clearTimeout(historyTimeout.current);
+      window.clearTimeout(noticeTimeout.current);
       window.clearTimeout(dealTimeout.current);
     };
   }, []);
@@ -129,8 +142,10 @@ export function useSudotiles() {
       setState(ready);
       stateRef.current = ready;
     };
-    // Deal the opening puzzle once the worker is live.
-    deal(stateRef.current.difficulty);
+    // Deal the opening puzzle once the worker is live — unless a shared
+    // puzzle from the URL is already on the board. The ref is intentionally
+    // never cleared so a StrictMode remount doesn't deal over the shared board.
+    if (!sharedRef.current) deal(stateRef.current.difficulty);
     return () => {
       window.clearTimeout(dealTimeout.current);
       worker.terminate();
@@ -163,7 +178,22 @@ export function useSudotiles() {
   const select = useCallback((i: number) => {
     const s = stateRef.current;
     if (s.over || s.won || s.dealing) return;
-    setState({ ...s, selected: i });
+    const next = { ...s, selected: i, multiSelected: [i] };
+    setState(next);
+    // Update the ref eagerly: drag pointermove events can arrive before the
+    // next render refreshes stateRef.
+    stateRef.current = next;
+  }, []);
+
+  // Extend the current selection while click-dragging (or touch-dragging)
+  // across the board. The first pressed cell stays the anchor (`selected`).
+  const dragSelect = useCallback((i: number) => {
+    const s = stateRef.current;
+    if (s.over || s.won || s.dealing) return;
+    if (s.selected == null || s.multiSelected.includes(i)) return;
+    const next = { ...s, multiSelected: [...s.multiSelected, i] };
+    setState(next);
+    stateRef.current = next;
   }, []);
 
   const togglePencil = useCallback(() => {
@@ -207,6 +237,43 @@ export function useSudotiles() {
     guideTimeout.current = window.setTimeout(() => setGuide({ open: false, closing: false }), 210);
   }, []);
 
+  const openHistory = useCallback(() => {
+    window.clearTimeout(historyTimeout.current);
+    setHistory({ open: true, closing: false });
+  }, []);
+
+  const closeHistory = useCallback(() => {
+    window.clearTimeout(historyTimeout.current);
+    setHistory((h) => ({ ...h, closing: true }));
+    historyTimeout.current = window.setTimeout(
+      () => setHistory({ open: false, closing: false }),
+      210,
+    );
+  }, []);
+
+  const showNotice = useCallback((text: string) => {
+    window.clearTimeout(noticeTimeout.current);
+    setNotice(text);
+    noticeTimeout.current = window.setTimeout(() => setNotice(""), 1800);
+  }, []);
+
+  // Share a puzzle link: the current board's givens, or an explicit givens
+  // string (used by the history modal to re-share past puzzles).
+  const sharePuzzle = useCallback(
+    async (givens?: string, difficulty?: string) => {
+      const s = stateRef.current;
+      if (givens == null) {
+        if (s.dealing) return;
+        givens = s.board.map((c) => (c.given ? c.value : "0")).join("");
+      }
+      const url = shareUrlFor(givens, difficulty ?? s.difficulty);
+      const result = await deliverShareUrl(url);
+      if (result === "copied") showNotice("Link copied to clipboard");
+      else if (result === "failed") showNotice("Couldn't copy the link");
+    },
+    [showNotice],
+  );
+
   const setDifficulty = useCallback(
     (label: string) => {
       setSettings((prev) => ({ ...prev, difficulty: label }));
@@ -236,28 +303,48 @@ export function useSudotiles() {
     setSettings((prev) => ({ ...prev, animationsEnabled: !prev.animationsEnabled }));
   }, []);
 
+  // The cells an edit applies to: the whole drag selection, or just the
+  // anchor when nothing was dragged.
+  const selectionOf = (s: GameState): number[] => {
+    if (s.multiSelected.length > 0) return s.multiSelected;
+    return s.selected == null ? [] : [s.selected];
+  };
+
   const erase = useCallback(() => {
     const s = stateRef.current;
-    if (s.selected == null || s.over || s.won) return;
-    const cell = s.board[s.selected];
-    if (cell.given) return;
+    if (s.over || s.won) return;
     // A correctly placed number is locked in and can't be erased; only wrong
     // entries (error) and scribbles can be cleared.
-    if (cell.value !== "" && !cell.error) return;
+    const targets = selectionOf(s).filter((i) => {
+      const cell = s.board[i];
+      return !cell.given && (cell.value === "" || cell.error);
+    });
+    if (targets.length === 0) return;
     const board = s.board.slice();
-    board[s.selected] = { ...cell, value: "", error: false, scribbles: Array(9).fill(false) };
+    for (const i of targets) {
+      board[i] = { ...board[i], value: "", error: false, scribbles: Array(9).fill(false) };
+    }
     setState({ ...s, board });
   }, []);
 
   const scribbleToggle = useCallback((n: number) => {
     const s = stateRef.current;
-    if (s.selected == null || s.over || s.won) return;
-    const cell = s.board[s.selected];
-    if (cell.given || cell.value) return;
+    if (s.over || s.won) return;
+    const targets = selectionOf(s).filter((i) => {
+      const cell = s.board[i];
+      return !cell.given && !cell.value;
+    });
+    if (targets.length === 0) return;
+    // Toggle in unison: if any target is missing the note, add it everywhere;
+    // otherwise all targets have it, so clear it everywhere.
+    const turnOn = targets.some((i) => !s.board[i].scribbles[n - 1]);
     const board = s.board.slice();
-    const scribbles = board[s.selected].scribbles.slice();
-    scribbles[n - 1] = !scribbles[n - 1];
-    board[s.selected] = { ...board[s.selected], scribbles };
+    for (const i of targets) {
+      if (board[i].scribbles[n - 1] === turnOn) continue;
+      const scribbles = board[i].scribbles.slice();
+      scribbles[n - 1] = turnOn;
+      board[i] = { ...board[i], scribbles };
+    }
     setState({ ...s, board, started: true });
   }, []);
 
@@ -290,6 +377,8 @@ export function useSudotiles() {
         const next: GameState = {
           ...s,
           board,
+          // Placing a value only affects the anchor, so drop any drag selection.
+          multiSelected: [s.selected],
           score: s.score + BASE_POINTS,
           streak,
           won,
@@ -297,8 +386,17 @@ export function useSudotiles() {
         };
         setState(next);
         stateRef.current = next;
-        if (won) celebrate();
-        else if (milestone) flourish(`+${streak} STREAK`);
+        if (won) {
+          celebrate();
+          addHistoryEntry({
+            date: new Date().toISOString(),
+            difficulty: s.difficulty,
+            score: next.score,
+            elapsed: s.elapsed,
+            givens: board.map((c) => (c.given ? c.value : ".")).join(""),
+            solution: s.solution,
+          });
+        } else if (milestone) flourish(`+${streak} STREAK`);
       } else {
         shake();
         const board = s.board.slice();
@@ -313,6 +411,7 @@ export function useSudotiles() {
         const next: GameState = {
           ...s,
           board,
+          multiSelected: [s.selected],
           hearts,
           over: livesOn && hearts <= 0,
           streak: 0,
@@ -367,9 +466,12 @@ export function useSudotiles() {
     diff,
     confirm,
     guide,
+    history,
+    notice,
     confettiRef,
     actions: {
       select,
+      dragSelect,
       togglePencil,
       toggleGuides,
       openDiff,
@@ -389,6 +491,9 @@ export function useSudotiles() {
       confirmRefresh,
       openGuide,
       closeGuide,
+      openHistory,
+      closeHistory,
+      sharePuzzle,
     },
   };
 }

@@ -4,6 +4,7 @@ import ConfirmModal from "./components/ConfirmModal";
 import Controls from "./components/Controls";
 import GameOverlay from "./components/GameOverlay";
 import GuideModal from "./components/GuideModal";
+import HistoryModal from "./components/HistoryModal";
 import Hud from "./components/Hud";
 import NumberPad from "./components/NumberPad";
 import SettingsModal from "./components/SettingsModal";
@@ -11,7 +12,7 @@ import StreakFlourish from "./components/StreakFlourish";
 import { useSudotiles } from "./game/useSudotiles";
 
 function App() {
-  const { state, settings, flash, shaking, diff, confirm, guide, confettiRef, actions } =
+  const { state, settings, flash, shaking, diff, confirm, guide, history, notice, confettiRef, actions } =
     useSudotiles();
 
   const numpadRight = settings.numpadPosition === "right";
@@ -32,6 +33,7 @@ function App() {
     <Board
       state={state}
       onSelect={actions.select}
+      onDragSelect={actions.dragSelect}
       animate={animate}
       guides={settings.guidesEnabled}
     />
@@ -70,6 +72,8 @@ function App() {
                 onOpenDiff={actions.openDiff}
                 onOpenGuide={actions.openGuide}
                 onRefresh={actions.openConfirm}
+                onShare={() => actions.sharePuzzle()}
+                onOpenHistory={actions.openHistory}
                 orientation="vertical"
               />
             </div>
@@ -88,6 +92,8 @@ function App() {
                 onOpenDiff={actions.openDiff}
                 onOpenGuide={actions.openGuide}
                 onRefresh={actions.openConfirm}
+                onShare={() => actions.sharePuzzle()}
+                onOpenHistory={actions.openHistory}
               />
             </div>
           </>
@@ -121,6 +127,23 @@ function App() {
       />
 
       <GuideModal open={guide.open} closing={guide.closing} animate={animate} onClose={actions.closeGuide} />
+
+      <HistoryModal
+        open={history.open}
+        closing={history.closing}
+        animate={animate}
+        onShare={(givens, difficulty) => actions.sharePuzzle(givens, difficulty)}
+        onClose={actions.closeHistory}
+      />
+
+      {notice && (
+        <div
+          className="pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-[#2b2822] px-5 py-2.5 text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
+          style={{ animation: animate ? "st-rise 0.25s ease-out both" : undefined }}
+        >
+          {notice}
+        </div>
+      )}
 
       {state.over && (
         <GameOverlay

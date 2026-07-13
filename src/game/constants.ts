@@ -43,3 +43,6 @@ export function cluesFor(difficulty: string): number {
 
 export const STREAK_MILESTONE = 10;
 export const MAX_HEARTS = 3;
+
+export const APP_VERSION = "1.0.0";
+export const REPO_URL = "https://github.com/zhnuksyh/sudotiles";
