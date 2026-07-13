@@ -147,7 +147,7 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
 
         <button
           onClick={onStartTutorial}
-          className="mt-2 cursor-pointer rounded-[14px] border-none bg-[rgba(var(--accent-rgb),0.12)] px-4 py-3 text-[14px] font-semibold text-[var(--accent)] shadow-[0_0_0_1.5px_rgba(var(--accent-rgb),0.5)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-115 active:translate-y-0"
+          className="mt-2 cursor-pointer rounded-[14px] border-none bg-[rgba(var(--accent-rgb),0.12)] px-4 py-3 text-[14px] font-semibold text-white shadow-[0_0_0_1.5px_rgba(var(--accent-rgb),0.5)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-115 active:translate-y-0"
         >
           Start the interactive tutorial
         </button>
