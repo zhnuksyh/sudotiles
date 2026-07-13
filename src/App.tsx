@@ -12,8 +12,20 @@ import StreakFlourish from "./components/StreakFlourish";
 import { useSudotiles } from "./game/useSudotiles";
 
 function App() {
-  const { state, settings, flash, shaking, diff, confirm, guide, history, notice, confettiRef, actions } =
-    useSudotiles();
+  const {
+    state,
+    settings,
+    flash,
+    shaking,
+    diff,
+    confirm,
+    guide,
+    history,
+    notice,
+    tutorialStep,
+    confettiRef,
+    actions,
+  } = useSudotiles();
 
   const numpadRight = settings.numpadPosition === "right";
   const animate = settings.animationsEnabled;
@@ -36,6 +48,9 @@ function App() {
       onDragSelect={actions.dragSelect}
       animate={animate}
       guides={settings.guidesEnabled}
+      tutorialStep={tutorialStep}
+      onTutorialNext={actions.nextTutorialStep}
+      onTutorialSkip={actions.skipTutorial}
     />
   );
 
@@ -44,7 +59,7 @@ function App() {
       className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden overflow-y-auto px-3 py-5 font-sans sm:px-6 sm:py-8"
       style={{
         background:
-          "radial-gradient(135% 105% at 50% 14%, #171614 0%, #100f0e 58%, #0a0908 100%)",
+          "radial-gradient(135% 105% at 50% 14%, var(--bg0) 0%, var(--bg1) 58%, var(--bg2) 100%)",
       }}
     >
       <div
@@ -110,6 +125,7 @@ function App() {
         settings={settings}
         onSelectDifficulty={actions.setDifficulty}
         onSetNumpadPosition={actions.setNumpadPosition}
+        onSetTheme={actions.setTheme}
         onToggleLives={actions.toggleLives}
         onToggleTimer={actions.toggleTimer}
         onToggleKeyboard={actions.toggleKeyboard}
@@ -126,7 +142,13 @@ function App() {
         onClose={actions.closeConfirm}
       />
 
-      <GuideModal open={guide.open} closing={guide.closing} animate={animate} onClose={actions.closeGuide} />
+      <GuideModal
+        open={guide.open}
+        closing={guide.closing}
+        animate={animate}
+        onStartTutorial={actions.startTutorial}
+        onClose={actions.closeGuide}
+      />
 
       <HistoryModal
         open={history.open}
@@ -138,7 +160,7 @@ function App() {
 
       {notice && (
         <div
-          className="pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-[#2b2822] px-5 py-2.5 text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
+          className="pointer-events-none fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full bg-[var(--menu0)] px-5 py-2.5 text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
           style={{ animation: animate ? "st-rise 0.25s ease-out both" : undefined }}
         >
           {notice}

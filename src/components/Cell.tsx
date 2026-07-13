@@ -3,13 +3,14 @@ import type { CellView } from "../game/derive";
 interface CellProps {
   cell: CellView;
   animate: boolean;
+  tutorialTarget?: boolean;
 }
 
-export default function Cell({ cell, animate }: CellProps) {
+export default function Cell({ cell, animate, tutorialTarget }: CellProps) {
   return (
     <div
       data-cell={cell.index}
-      className="relative flex aspect-square min-w-0 cursor-pointer items-center justify-center rounded-[9px] bg-[#211f1d] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_1px_2px_rgba(0,0,0,0.35)] transition-colors duration-[120ms] ease-linear hover:bg-[#2a2825]"
+      className="relative flex aspect-square min-w-0 cursor-pointer items-center justify-center rounded-[9px] bg-[var(--cell)] shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_1px_2px_rgba(0,0,0,0.35)] transition-colors duration-[120ms] ease-linear hover:bg-[var(--cell-hover)]"
     >
       {cell.isPeer && (
         <div className="absolute inset-0 rounded-[9px] bg-white/[0.045]" />
@@ -19,6 +20,12 @@ export default function Cell({ cell, animate }: CellProps) {
       )}
       {cell.isError && (
         <div className="absolute inset-0 rounded-[9px] bg-[rgba(224,96,96,0.15)]" />
+      )}
+      {tutorialTarget && (
+        <div
+          className="absolute inset-0 rounded-[9px] shadow-[0_0_0_2.5px_rgba(var(--accent-rgb),0.9)_inset]"
+          style={{ animation: "st-pulse 1.3s ease-in-out infinite" }}
+        />
       )}
       {cell.isSelected && (
         <div className="absolute inset-0 rounded-[9px] bg-white/[0.06] shadow-[0_0_0_2px_rgba(216,211,202,0.85)_inset]" />

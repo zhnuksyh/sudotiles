@@ -3,8 +3,9 @@ import { BASE_POINTS, STREAK_MILESTONE } from "./constants";
 import { dealingState, fallbackState, freshState, readyState } from "./freshState";
 import { addHistoryEntry } from "./history";
 import { deliverShareUrl, readSharedPuzzle, shareUrlFor } from "./share";
-import { loadSettings, saveSettings } from "./settings";
-import type { Settings } from "./settings";
+import { applyTheme, loadSettings, saveSettings } from "./settings";
+import { TUTORIAL_STEPS } from "./tutorial";
+import type { Settings, ThemeId } from "./settings";
 import type { Cell, GameState } from "./types";
 import type { WorkerRequest, WorkerResponse } from "./sudoku.worker";
 import type { ConfettiHandle } from "../components/Confetti";
@@ -30,7 +31,12 @@ function clearPeerScribbles(board: Cell[], selected: number, n: number) {
 }
 
 export function useSudotiles() {
-  const [settings, setSettings] = useState<Settings>(() => loadSettings());
+  const [settings, setSettings] = useState<Settings>(() => {
+    const s = loadSettings();
+    // Apply before first paint so a saved theme doesn't flash the default.
+    applyTheme(s.theme);
+    return s;
+  });
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
@@ -58,6 +64,10 @@ export function useSudotiles() {
     saveSettings(settings);
   }, [settings]);
 
+  useEffect(() => {
+    applyTheme(settings.theme);
+  }, [settings.theme]);
+
   const [flash, setFlash] = useState({ on: false, text: "" });
   const [shaking, setShaking] = useState(false);
   const [diff, setDiff] = useState({ open: false, closing: false });
@@ -65,6 +75,11 @@ export function useSudotiles() {
   const [guide, setGuide] = useState({ open: false, closing: false });
   const [history, setHistory] = useState({ open: false, closing: false });
   const [notice, setNotice] = useState("");
+
+  // Current tutorial step index, or null when not in the tutorial.
+  const [tutorialStep, setTutorialStep] = useState<number | null>(null);
+  const tutorialRef = useRef(tutorialStep);
+  tutorialRef.current = tutorialStep;
 
   // Track whether any modal is open so keyboard shortcuts stay dormant then.
   const anyModalOpenRef = useRef(false);
@@ -104,6 +119,7 @@ export function useSudotiles() {
   // and fills it when the worker (or the synchronous fallback) responds. Stale
   // worker responses (from a superseded request) are ignored via `requestId`.
   const deal = useCallback((difficulty: string) => {
+    setTutorialStep(null); // dealing a new board leaves the tutorial
     const next = dealingState(difficulty);
     setState(next);
     stateRef.current = next;
@@ -251,6 +267,42 @@ export function useSudotiles() {
     );
   }, []);
 
+  // Move to tutorial step `i`, pre-selecting its target cell; past the last
+  // step the tutorial simply ends and normal play continues on the board.
+  const gotoTutorialStep = useCallback(
+    (i: number) => {
+      if (i >= TUTORIAL_STEPS.length) {
+        setTutorialStep(null);
+        return;
+      }
+      setTutorialStep(i);
+      const cell = TUTORIAL_STEPS[i].cell;
+      if (cell != null) select(cell);
+    },
+    [select],
+  );
+
+  // Start the guided tutorial on the bundled puzzle (its steps are authored
+  // against that exact board).
+  const startTutorial = useCallback(() => {
+    window.clearTimeout(dealTimeout.current);
+    requestId.current++; // supersede any in-flight worker deal
+    const ready = fallbackState(settingsRef.current.difficulty);
+    setState(ready);
+    stateRef.current = ready;
+    closeGuide();
+    gotoTutorialStep(0);
+  }, [closeGuide, gotoTutorialStep]);
+
+  const nextTutorialStep = useCallback(() => {
+    const t = tutorialRef.current;
+    if (t != null) gotoTutorialStep(t + 1);
+  }, [gotoTutorialStep]);
+
+  const skipTutorial = useCallback(() => {
+    setTutorialStep(null);
+  }, []);
+
   const showNotice = useCallback((text: string) => {
     window.clearTimeout(noticeTimeout.current);
     setNotice(text);
@@ -285,6 +337,10 @@ export function useSudotiles() {
 
   const setNumpadPosition = useCallback((numpadPosition: Settings["numpadPosition"]) => {
     setSettings((prev) => ({ ...prev, numpadPosition }));
+  }, []);
+
+  const setTheme = useCallback((theme: ThemeId) => {
+    setSettings((prev) => ({ ...prev, theme }));
   }, []);
 
   const toggleLives = useCallback(() => {
@@ -356,6 +412,19 @@ export function useSudotiles() {
         return;
       }
       if (s.selected == null || s.over || s.won) return;
+
+      // During the tutorial only the current step's exact move is accepted.
+      const t = tutorialRef.current;
+      if (t != null) {
+        const step = TUTORIAL_STEPS[t];
+        if (step.cell == null) return; // info step: advance with Next instead
+        if (s.selected !== step.cell || n !== step.n) {
+          shake();
+          showNotice("Follow the highlighted cell first");
+          return;
+        }
+      }
+
       const cell = s.board[s.selected];
       if (cell.given) return;
       // A correctly placed number is locked; don't allow overwriting it.
@@ -386,6 +455,7 @@ export function useSudotiles() {
         };
         setState(next);
         stateRef.current = next;
+        if (tutorialRef.current != null) gotoTutorialStep(tutorialRef.current + 1);
         if (won) {
           celebrate();
           addHistoryEntry({
@@ -421,7 +491,7 @@ export function useSudotiles() {
         stateRef.current = next;
       }
     },
-    [scribbleToggle, shake, flourish, celebrate],
+    [scribbleToggle, shake, flourish, celebrate, showNotice, gotoTutorialStep],
   );
 
   // Keyboard shortcuts: 1-9 place a number, Space erases, Tab toggles scribble
@@ -468,6 +538,7 @@ export function useSudotiles() {
     guide,
     history,
     notice,
+    tutorialStep,
     confettiRef,
     actions: {
       select,
@@ -478,6 +549,7 @@ export function useSudotiles() {
       closeDiff,
       setDifficulty,
       setNumpadPosition,
+      setTheme,
       toggleLives,
       toggleTimer,
       toggleKeyboard,
@@ -494,6 +566,9 @@ export function useSudotiles() {
       openHistory,
       closeHistory,
       sharePuzzle,
+      startTutorial,
+      nextTutorialStep,
+      skipTutorial,
     },
   };
 }

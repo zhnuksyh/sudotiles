@@ -4,11 +4,106 @@
   --font-sans: "Fredoka", sans-serif;
 }
 
+/* Theme tokens. "Ember" (the default) is the original warm look; other themes
+ * retint the dark surfaces and swap the accent. Applied via data-theme on
+ * <html>. Text greys are shared across themes. */
+:root {
+  --accent: #dcb887;
+  --accent-strong: #e0aa60;
+  --accent-rgb: 224, 170, 96;
+  --bg0: #171614;
+  --bg1: #100f0e;
+  --bg2: #0a0908;
+  --board0: #1a1917;
+  --board1: #121110;
+  --cell: #211f1d;
+  --cell-hover: #2a2825;
+  --panel0: #201e1b;
+  --panel1: #161513;
+  --row0: #282520;
+  --row1: #1e1b17;
+  --pad0: #262320;
+  --pad1: #1c1a17;
+  --ctl0: #242118;
+  --ctl1: #1a1813;
+  --menu0: #2b2822;
+  --menu1: #1e1b17;
+}
+
+[data-theme="ocean"] {
+  --accent: #8fbedd;
+  --accent-strong: #6fadd8;
+  --accent-rgb: 111, 173, 216;
+  --bg0: #131517;
+  --bg1: #0e0f10;
+  --bg2: #08090a;
+  --board0: #16181a;
+  --board1: #101112;
+  --cell: #1d2022;
+  --cell-hover: #262a2d;
+  --panel0: #1b1e20;
+  --panel1: #131516;
+  --row0: #212629;
+  --row1: #181c1f;
+  --pad0: #202427;
+  --pad1: #171a1d;
+  --ctl0: #1a2226;
+  --ctl1: #14191c;
+  --menu0: #23292d;
+  --menu1: #181c1f;
+}
+
+[data-theme="forest"] {
+  --accent: #a9cc8b;
+  --accent-strong: #90c06d;
+  --accent-rgb: 144, 192, 109;
+  --bg0: #141613;
+  --bg1: #0e100d;
+  --bg2: #080a08;
+  --board0: #171916;
+  --board1: #101210;
+  --cell: #1e211d;
+  --cell-hover: #262a24;
+  --panel0: #1c201a;
+  --panel1: #141613;
+  --row0: #232820;
+  --row1: #191e17;
+  --pad0: #212620;
+  --pad1: #181c17;
+  --ctl0: #1c2418;
+  --ctl1: #141a12;
+  --menu0: #252b22;
+  --menu1: #191e17;
+}
+
+[data-theme="plum"] {
+  --accent: #c8a3dc;
+  --accent-strong: #b98bd6;
+  --accent-rgb: 185, 139, 214;
+  --bg0: #161418;
+  --bg1: #0f0e11;
+  --bg2: #09080b;
+  --board0: #191719;
+  --board1: #121013;
+  --cell: #201d22;
+  --cell-hover: #29252c;
+  --panel0: #1e1b20;
+  --panel1: #151316;
+  --row0: #262229;
+  --row1: #1b181e;
+  --pad0: #242028;
+  --pad1: #1a171d;
+  --ctl0: #211c26;
+  --ctl1: #17141b;
+  --menu0: #28242c;
+  --menu1: #1b181e;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
-  background: #0a0908;
+  background: var(--bg2);
 }
 
 body {
@@ -104,6 +199,15 @@ button {
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+@keyframes st-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
   }
 }
 @keyframes st-drop {

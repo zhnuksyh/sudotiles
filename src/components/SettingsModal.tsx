@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { APP_VERSION, DIFFICULTIES, REPO_URL } from "../game/constants";
-import type { NumpadPosition, Settings } from "../game/settings";
+import { THEMES } from "../game/settings";
+import type { NumpadPosition, Settings, ThemeId } from "../game/settings";
 import { ChevronDownIcon, CloseIcon, GitHubIcon } from "./icons";
 
 const ACTIVE_BG = "rgba(226,224,220,0.10)";
 const ACTIVE_SHADOW = "0 0 0 2px rgba(214,210,203,0.55) inset";
 const ACTIVE_COLOR = "#e0ddd6";
-const IDLE_BG = "linear-gradient(180deg,#282520,#1e1b17)";
+const IDLE_BG = "linear-gradient(180deg,var(--row0),var(--row1))";
 const IDLE_SHADOW = "0 1px 0 rgba(255,255,255,0.04) inset";
 const IDLE_COLOR = "#e4e1db";
 
@@ -16,6 +17,7 @@ interface SettingsModalProps {
   settings: Settings;
   onSelectDifficulty: (label: string) => void;
   onSetNumpadPosition: (position: NumpadPosition) => void;
+  onSetTheme: (theme: ThemeId) => void;
   onToggleLives: () => void;
   onToggleTimer: () => void;
   onToggleKeyboard: () => void;
@@ -99,7 +101,7 @@ function DifficultyDropdown({
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div
             role="listbox"
-            className="absolute top-[calc(100%+6px)] right-0 left-0 z-20 flex flex-col gap-1 rounded-[14px] bg-gradient-to-b from-[#2b2822] to-[#1e1b17] p-1.5 shadow-[0_18px_40px_-10px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)_inset]"
+            className="absolute top-[calc(100%+6px)] right-0 left-0 z-20 flex flex-col gap-1 rounded-[14px] bg-gradient-to-b from-[var(--menu0)] to-[var(--menu1)] p-1.5 shadow-[0_18px_40px_-10px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)_inset]"
             style={{ animation: "st-drop 0.18s ease-out both" }}
           >
             {DIFFICULTIES.map((d) => {
@@ -114,7 +116,7 @@ function DifficultyDropdown({
                     if (!active) onChange(d.label);
                   }}
                   className={`flex cursor-pointer flex-col gap-0.5 rounded-[10px] border-none px-3 py-2.5 text-left transition-[filter,box-shadow] duration-100 ease-in-out hover:brightness-[1.15] ${
-                    active ? "" : "hover:shadow-[0_0_0_1.5px_rgba(224,170,96,0.55)_inset]"
+                    active ? "" : "hover:shadow-[0_0_0_1.5px_rgba(var(--accent-rgb),0.55)_inset]"
                   }`}
                   style={{
                     background: active ? ACTIVE_BG : "transparent",
@@ -134,6 +136,48 @@ function DifficultyDropdown({
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+/* Theme picker: one swatch per theme showing its surface + accent colors. */
+function ThemePicker({ value, onChange }: { value: ThemeId; onChange: (t: ThemeId) => void }) {
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {THEMES.map((t) => {
+        const active = t.id === value;
+        return (
+          <button
+            key={t.id}
+            onClick={() => onChange(t.id)}
+            title={t.label}
+            className="flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-none px-1 py-2.5 transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.15] active:translate-y-0"
+            style={{
+              background: active ? ACTIVE_BG : "transparent",
+              boxShadow: active ? ACTIVE_SHADOW : "none",
+            }}
+          >
+            <span
+              className="relative h-[30px] w-[30px] rounded-full"
+              style={{
+                background: t.surface,
+                boxShadow: "0 0 0 1px rgba(255,255,255,0.12) inset, 0 2px 5px rgba(0,0,0,0.4)",
+              }}
+            >
+              <span
+                className="absolute right-[3px] bottom-[3px] h-[12px] w-[12px] rounded-full"
+                style={{ background: t.accent }}
+              />
+            </span>
+            <span
+              className="text-[11.5px] font-medium"
+              style={{ color: active ? ACTIVE_COLOR : "#8a837a" }}
+            >
+              {t.label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -181,6 +225,7 @@ export default function SettingsModal({
   settings,
   onSelectDifficulty,
   onSetNumpadPosition,
+  onSetTheme,
   onToggleLives,
   onToggleTimer,
   onToggleKeyboard,
@@ -206,7 +251,7 @@ export default function SettingsModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[86vh] w-[min(92vw,340px)] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:w-[400px] lg:w-[440px]"
+        className="relative flex max-h-[86vh] w-[min(92vw,340px)] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[var(--panel0)] to-[var(--panel1)] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:w-[400px] lg:w-[440px]"
         style={{
           animation: animate
             ? closing
@@ -227,6 +272,9 @@ export default function SettingsModal({
 
         <SectionLabel>Difficulty</SectionLabel>
         <DifficultyDropdown value={settings.difficulty} onChange={onSelectDifficulty} />
+
+        <SectionLabel>Theme</SectionLabel>
+        <ThemePicker value={settings.theme} onChange={onSetTheme} />
 
         <SectionLabel>Number pad</SectionLabel>
         <Segmented value={settings.numpadPosition} onChange={onSetNumpadPosition} />

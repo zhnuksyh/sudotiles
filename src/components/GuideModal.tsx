@@ -5,6 +5,7 @@ interface GuideModalProps {
   open: boolean;
   closing: boolean;
   animate: boolean;
+  onStartTutorial: () => void;
   onClose: () => void;
 }
 
@@ -23,8 +24,8 @@ function MiniGrid({ cells }: { cells: string }) {
             key={i}
             className="flex h-8 w-8 items-center justify-center text-[15px] font-medium"
             style={{
-              background: target ? "rgba(224,170,96,0.16)" : "linear-gradient(180deg,#222019,#191712)",
-              color: target ? "#e0aa60" : "#d8d3ca",
+              background: target ? "rgba(var(--accent-rgb),0.16)" : "linear-gradient(180deg,#222019,#191712)",
+              color: target ? "var(--accent-strong)" : "#d8d3ca",
               boxShadow: "0 0 0 0.5px rgba(255,255,255,0.05) inset",
             }}
           >
@@ -102,13 +103,13 @@ const VIDEOS: VideoLink[] = [
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <div className="mt-3 mb-1 text-[13px] font-semibold tracking-wide text-[#dcb887] uppercase">
+    <div className="mt-3 mb-1 text-[13px] font-semibold tracking-wide text-[var(--accent)] uppercase">
       {children}
     </div>
   );
 }
 
-export default function GuideModal({ open, closing, animate, onClose }: GuideModalProps) {
+export default function GuideModal({ open, closing, animate, onStartTutorial, onClose }: GuideModalProps) {
   if (!open) return null;
 
   return (
@@ -125,7 +126,7 @@ export default function GuideModal({ open, closing, animate, onClose }: GuideMod
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[82vh] w-[min(92vw,440px)] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:w-[520px] lg:w-[600px]"
+        className="relative flex max-h-[82vh] w-[min(92vw,440px)] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[var(--panel0)] to-[var(--panel1)] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:w-[520px] lg:w-[600px]"
         style={{
           animation: animate
             ? closing
@@ -143,6 +144,13 @@ export default function GuideModal({ open, closing, animate, onClose }: GuideMod
         </button>
 
         <div className="mb-1 text-[22px] font-semibold text-[#ecebe8]">How to play Sudoku</div>
+
+        <button
+          onClick={onStartTutorial}
+          className="mt-2 cursor-pointer rounded-[14px] border-none bg-[rgba(var(--accent-rgb),0.12)] px-4 py-3 text-[14px] font-semibold text-[var(--accent)] shadow-[0_0_0_1.5px_rgba(var(--accent-rgb),0.5)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-115 active:translate-y-0"
+        >
+          Start the interactive tutorial
+        </button>
 
         <SectionTitle>The goal</SectionTitle>
         <p className="text-[13.5px] leading-relaxed text-[#b3ada3]">
@@ -173,7 +181,7 @@ export default function GuideModal({ open, closing, animate, onClose }: GuideMod
         <SectionTitle>Tips in this app</SectionTitle>
         <ul className="flex list-disc flex-col gap-1 pl-4 text-[12.5px] leading-relaxed text-[#a49d92]">
           <li>
-            Right-click a number (or tap the <span className="text-[#dcb887]">pencil</span>) to jot
+            Right-click a number (or tap the <span className="text-[var(--accent)]">pencil</span>) to jot
             candidate scribbles in a cell.
           </li>
           <li>
@@ -181,7 +189,7 @@ export default function GuideModal({ open, closing, animate, onClose }: GuideMod
             of them.
           </li>
           <li>
-            Turn on <span className="text-[#dcb887]">Show guide</span> in Settings to highlight the
+            Turn on <span className="text-[var(--accent)]">Show guide</span> in Settings to highlight the
             peers and matching numbers of the selected cell.
           </li>
           <li>A correct number locks into place — it can't be erased or overwritten.</li>

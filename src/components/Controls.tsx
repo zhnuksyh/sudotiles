@@ -1,9 +1,9 @@
 import { BookIcon, EraserIcon, GearIcon, HistoryIcon, PencilIcon, RefreshIcon, ShareIcon } from "./icons";
 
-const ACTIVE_BG = "rgba(224,170,96,0.12)";
-const ACTIVE_SHADOW = "0 0 0 2px rgba(224,170,96,0.65) inset";
-const ACTIVE_COLOR = "#dcb887";
-const IDLE_BG = "linear-gradient(180deg,#242118,#1a1813)";
+const ACTIVE_BG = "rgba(var(--accent-rgb),0.12)";
+const ACTIVE_SHADOW = "0 0 0 2px rgba(var(--accent-rgb),0.65) inset";
+const ACTIVE_COLOR = "var(--accent)";
+const IDLE_BG = "linear-gradient(180deg,var(--ctl0),var(--ctl1))";
 const IDLE_SHADOW = "0 2px 5px rgba(0,0,0,0.4),0 1px 0 rgba(255,255,255,0.04) inset";
 const IDLE_COLOR = "#c2bcb2";
 

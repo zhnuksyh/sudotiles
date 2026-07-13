@@ -71,7 +71,7 @@ export default function HistoryModal({ open, closing, animate, onShare, onClose 
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[86vh] w-[min(92vw,340px)] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[#201e1b] to-[#161513] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:w-[400px] lg:w-[440px]"
+        className="relative flex max-h-[86vh] w-[min(92vw,340px)] flex-col overflow-y-auto rounded-[26px] bg-gradient-to-b from-[var(--panel0)] to-[var(--panel1)] p-[26px] shadow-[0_34px_70px_-18px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:w-[400px] lg:w-[440px]"
         style={{
           animation: animate
             ? closing
@@ -103,7 +103,7 @@ export default function HistoryModal({ open, closing, animate, onShare, onClose 
                 key={entry.date + i}
                 className="rounded-[14px] px-4 py-3"
                 style={{
-                  background: "linear-gradient(180deg,#282520,#1e1b17)",
+                  background: "linear-gradient(180deg,var(--row0),var(--row1))",
                   boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
                 }}
               >
