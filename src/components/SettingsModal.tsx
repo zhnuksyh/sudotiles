@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { APP_VERSION, DIFFICULTIES, REPO_URL } from "../game/constants";
-import { THEMES } from "../game/settings";
-import type { NumpadPosition, Settings, ThemeId } from "../game/settings";
+import type { NumpadPosition, Settings, ThemeChoice } from "../game/settings";
 import { ChevronDownIcon, CloseIcon, GitHubIcon } from "./icons";
 
 const ACTIVE_BG = "rgba(226,224,220,0.10)";
@@ -17,7 +16,10 @@ interface SettingsModalProps {
   settings: Settings;
   onSelectDifficulty: (label: string) => void;
   onSetNumpadPosition: (position: NumpadPosition) => void;
-  onSetTheme: (theme: ThemeId) => void;
+  onSetTheme: (theme: ThemeChoice) => void;
+  customBg: string | null;
+  onUploadBackground: (file: File) => void;
+  onRemoveBackground: () => void;
   onToggleLives: () => void;
   onToggleTimer: () => void;
   onToggleKeyboard: () => void;
@@ -141,45 +143,108 @@ function DifficultyDropdown({
   );
 }
 
-/* Theme picker: one swatch per theme showing its surface + accent colors. */
-function ThemePicker({ value, onChange }: { value: ThemeId; onChange: (t: ThemeId) => void }) {
+/* Background picker: the default dark look, or an uploaded picture — the page
+ * background becomes the picture and the accent/surface palette is derived
+ * automatically from its colors. */
+function BackgroundPicker({
+  value,
+  onChange,
+  customBg,
+  onUpload,
+  onRemove,
+}: {
+  value: ThemeChoice;
+  onChange: (t: ThemeChoice) => void;
+  customBg: string | null;
+  onUpload: (file: File) => void;
+  onRemove: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const customActive = value === "custom";
+
   return (
-    <div className="grid grid-cols-4 gap-2">
-      {THEMES.map((t) => {
-        const active = t.id === value;
-        return (
-          <button
-            key={t.id}
-            onClick={() => onChange(t.id)}
-            title={t.label}
-            className="flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-none px-1 py-2.5 transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.15] active:translate-y-0"
+    <>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onUpload(file);
+          e.target.value = ""; // allow re-picking the same file
+        }}
+      />
+      <div className="grid grid-cols-4 gap-2">
+        <button
+          onClick={() => onChange("default")}
+          title="The default dark look"
+          className="flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-none px-1 py-2.5 transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.15] active:translate-y-0"
+          style={{
+            background: customActive ? "transparent" : ACTIVE_BG,
+            boxShadow: customActive ? "none" : ACTIVE_SHADOW,
+          }}
+        >
+          <span
+            className="relative h-[30px] w-[30px] rounded-full"
             style={{
-              background: active ? ACTIVE_BG : "transparent",
-              boxShadow: active ? ACTIVE_SHADOW : "none",
+              background: "#211f1d",
+              boxShadow: "0 0 0 1px rgba(255,255,255,0.12) inset, 0 2px 5px rgba(0,0,0,0.4)",
             }}
           >
             <span
-              className="relative h-[30px] w-[30px] rounded-full"
-              style={{
-                background: t.surface,
-                boxShadow: "0 0 0 1px rgba(255,255,255,0.12) inset, 0 2px 5px rgba(0,0,0,0.4)",
-              }}
-            >
-              <span
-                className="absolute right-[3px] bottom-[3px] h-[12px] w-[12px] rounded-full"
-                style={{ background: t.accent }}
-              />
-            </span>
-            <span
-              className="text-[11.5px] font-medium"
-              style={{ color: active ? ACTIVE_COLOR : "#8a837a" }}
-            >
-              {t.label}
-            </span>
-          </button>
-        );
-      })}
-    </div>
+              className="absolute right-[3px] bottom-[3px] h-[12px] w-[12px] rounded-full"
+              style={{ background: "#dcb887" }}
+            />
+          </span>
+          <span
+            className="text-[11.5px] font-medium"
+            style={{ color: customActive ? "#8a837a" : ACTIVE_COLOR }}
+          >
+            Default
+          </span>
+        </button>
+        <button
+          onClick={() => {
+            // No picture yet (or re-tapping the active tile): open the picker.
+            if (!customBg || customActive) fileRef.current?.click();
+            else onChange("custom");
+          }}
+          title={customBg ? "Use your picture (tap again to change it)" : "Upload a background picture"}
+          className="flex cursor-pointer flex-col items-center gap-1.5 rounded-[14px] border-none px-1 py-2.5 transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.15] active:translate-y-0"
+          style={{
+            background: customActive ? ACTIVE_BG : "transparent",
+            boxShadow: customActive ? ACTIVE_SHADOW : "none",
+          }}
+        >
+          <span
+            className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-cover bg-center text-[16px] leading-none text-[#8a837a]"
+            style={{
+              backgroundImage: customBg ? `url("${customBg}")` : undefined,
+              boxShadow: customBg
+                ? "0 0 0 1px rgba(255,255,255,0.12) inset, 0 2px 5px rgba(0,0,0,0.4)"
+                : "0 0 0 1.5px rgba(255,255,255,0.18) inset",
+            }}
+          >
+            {!customBg && "+"}
+          </span>
+          <span
+            className="text-[11.5px] font-medium"
+            style={{ color: customActive ? ACTIVE_COLOR : "#8a837a" }}
+          >
+            Custom
+          </span>
+        </button>
+      </div>
+      {customBg && (
+        <button
+          onClick={onRemove}
+          className="mt-1.5 cursor-pointer self-start border-none bg-transparent px-1 py-0.5 text-[11.5px] font-medium text-[#8a837a] transition-[filter] duration-100 ease-in-out hover:brightness-140"
+        >
+          Remove custom background
+        </button>
+      )}
+    </>
   );
 }
 
@@ -227,6 +292,9 @@ export default function SettingsModal({
   onSelectDifficulty,
   onSetNumpadPosition,
   onSetTheme,
+  customBg,
+  onUploadBackground,
+  onRemoveBackground,
   onToggleLives,
   onToggleTimer,
   onToggleKeyboard,
@@ -275,8 +343,14 @@ export default function SettingsModal({
         <SectionLabel>Difficulty</SectionLabel>
         <DifficultyDropdown value={settings.difficulty} onChange={onSelectDifficulty} />
 
-        <SectionLabel>Theme</SectionLabel>
-        <ThemePicker value={settings.theme} onChange={onSetTheme} />
+        <SectionLabel>Background</SectionLabel>
+        <BackgroundPicker
+          value={settings.theme}
+          onChange={onSetTheme}
+          customBg={customBg}
+          onUpload={onUploadBackground}
+          onRemove={onRemoveBackground}
+        />
 
         <SectionLabel>Number pad</SectionLabel>
         <Segmented value={settings.numpadPosition} onChange={onSetNumpadPosition} />

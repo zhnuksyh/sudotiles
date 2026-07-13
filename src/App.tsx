@@ -24,6 +24,7 @@ function App() {
     guide,
     history,
     notice,
+    customBg,
     tutorialStep,
     confettiRef,
     actions,
@@ -59,10 +60,20 @@ function App() {
   return (
     <div
       className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden overflow-y-auto px-3 py-5 font-sans sm:px-6 sm:py-8"
-      style={{
-        background:
-          "radial-gradient(135% 105% at 50% 14%, var(--bg0) 0%, var(--bg1) 58%, var(--bg2) 100%)",
-      }}
+      style={
+        settings.theme === "custom" && customBg
+          ? {
+              // The uploaded picture under a dark scrim so the board stays legible.
+              backgroundImage: `linear-gradient(rgba(8,8,10,0.72), rgba(8,8,10,0.82)), url("${customBg}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundAttachment: "fixed",
+            }
+          : {
+              background:
+                "radial-gradient(135% 105% at 50% 14%, var(--bg0) 0%, var(--bg1) 58%, var(--bg2) 100%)",
+            }
+      }
     >
       <div
         className="flex flex-col items-center gap-4 sm:gap-5"
@@ -130,6 +141,9 @@ function App() {
         onSelectDifficulty={actions.setDifficulty}
         onSetNumpadPosition={actions.setNumpadPosition}
         onSetTheme={actions.setTheme}
+        customBg={customBg}
+        onUploadBackground={actions.uploadBackground}
+        onRemoveBackground={actions.removeCustomBackground}
         onToggleLives={actions.toggleLives}
         onToggleTimer={actions.toggleTimer}
         onToggleKeyboard={actions.toggleKeyboard}

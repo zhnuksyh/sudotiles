@@ -3,10 +3,11 @@ import { BASE_POINTS, STREAK_MILESTONE, streakMultiplier } from "./constants";
 import { dealingState, fallbackState, freshState, readyState } from "./freshState";
 import { addHistoryEntry } from "./history";
 import { deliverShareUrl, readSharedPuzzle, shareUrlFor } from "./share";
+import { clearCustomTheme, createCustomTheme, loadCustomTheme } from "./customTheme";
 import { applyTheme, loadSettings, saveSettings } from "./settings";
 import { setSoundsEnabled, sounds } from "./sounds";
 import { TUTORIAL_STEPS } from "./tutorial";
-import type { Settings, ThemeId } from "./settings";
+import type { Settings, ThemeChoice } from "./settings";
 import type { Cell, GameState } from "./types";
 import type { WorkerRequest, WorkerResponse } from "./sudoku.worker";
 import type { ConfettiHandle } from "../components/Confetti";
@@ -375,8 +376,33 @@ export function useSudotiles() {
     setSettings((prev) => ({ ...prev, numpadPosition }));
   }, []);
 
-  const setTheme = useCallback((theme: ThemeId) => {
+  const setTheme = useCallback((theme: ThemeChoice) => {
     setSettings((prev) => ({ ...prev, theme }));
+  }, []);
+
+  // The uploaded background image (data URL) backing the "custom" theme.
+  const [customBg, setCustomBg] = useState<string | null>(() => loadCustomTheme()?.image ?? null);
+
+  const uploadBackground = useCallback(
+    async (file: File) => {
+      try {
+        const theme = await createCustomTheme(file);
+        setCustomBg(theme.image);
+        setSettings((prev) => ({ ...prev, theme: "custom" }));
+        // Re-apply even if "custom" was already selected (new image, new palette).
+        applyTheme("custom");
+      } catch {
+        showNotice("Couldn't use that image");
+      }
+    },
+    [showNotice],
+  );
+
+  const removeCustomBackground = useCallback(() => {
+    clearCustomTheme();
+    setCustomBg(null);
+    setSettings((prev) => ({ ...prev, theme: "default" }));
+    applyTheme("default");
   }, []);
 
   const toggleLives = useCallback(() => {
@@ -589,6 +615,7 @@ export function useSudotiles() {
     guide,
     history,
     notice,
+    customBg,
     tutorialStep,
     confettiRef,
     actions: {
@@ -601,6 +628,8 @@ export function useSudotiles() {
       setDifficulty,
       setNumpadPosition,
       setTheme,
+      uploadBackground,
+      removeCustomBackground,
       toggleLives,
       toggleTimer,
       toggleKeyboard,

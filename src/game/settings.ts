@@ -1,34 +1,29 @@
+import { applyCustomVars, clearCustomVars, loadCustomTheme } from "./customTheme";
 import { DEFAULT_DIFFICULTY } from "./constants";
 
 export type NumpadPosition = "bottom" | "right";
 
-export type ThemeId = "ember" | "ocean" | "forest" | "plum";
+/* "default" is the built-in look from :root in index.css; "custom" derives a
+ * palette from the user's uploaded background picture. */
+export type ThemeChoice = "default" | "custom";
 
-export interface Theme {
-  id: ThemeId;
-  label: string;
-  /* Swatch colors shown in the settings picker. */
-  accent: string;
-  surface: string;
-}
-
-export const THEMES: Theme[] = [
-  { id: "ember", label: "Ember", accent: "#dcb887", surface: "#211f1d" },
-  { id: "ocean", label: "Ocean", accent: "#8fbedd", surface: "#1d2022" },
-  { id: "forest", label: "Forest", accent: "#a9cc8b", surface: "#1e211d" },
-  { id: "plum", label: "Plum", accent: "#c8a3dc", surface: "#201d22" },
-];
-
-/* Stamp the theme onto <html> so the CSS variable overrides apply. The
- * default theme removes the attribute and falls back to :root. */
-export function applyTheme(theme: ThemeId): void {
-  if (theme === "ember") delete document.documentElement.dataset.theme;
-  else document.documentElement.dataset.theme = theme;
+/* Apply the theme: the custom palette goes on as inline CSS-variable
+ * overrides; the default clears them so :root shows through. */
+export function applyTheme(theme: ThemeChoice): void {
+  if (theme === "custom") {
+    const custom = loadCustomTheme();
+    if (custom) {
+      applyCustomVars(custom.vars);
+      return;
+    }
+    // stored image gone — fall through to the default
+  }
+  clearCustomVars();
 }
 
 export interface Settings {
   difficulty: string;
-  theme: ThemeId;
+  theme: ThemeChoice;
   numpadPosition: NumpadPosition;
   livesEnabled: boolean;
   timerEnabled: boolean;
@@ -40,7 +35,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   difficulty: DEFAULT_DIFFICULTY,
-  theme: "ember",
+  theme: "default",
   numpadPosition: "bottom",
   livesEnabled: true,
   timerEnabled: true,
@@ -59,7 +54,10 @@ export function loadSettings(): Settings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
     const parsed = JSON.parse(raw) as Partial<Settings>;
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    const merged = { ...DEFAULT_SETTINGS, ...parsed };
+    // Map legacy named themes (ember/ocean/...) to the default look.
+    if (merged.theme !== "custom") merged.theme = "default";
+    return merged;
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
