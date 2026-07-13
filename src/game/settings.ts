@@ -1,28 +1,17 @@
-import { applyCustomVars, clearCustomVars, loadCustomTheme } from "./customTheme";
+import { loadCustomBackground } from "./customTheme";
 import { DEFAULT_DIFFICULTY } from "./constants";
 
 export type NumpadPosition = "bottom" | "right";
 
 /* "ember" is the default warm look from :root in index.css, "void" the black
- * & white variant, and "custom" derives a palette from the user's uploaded
- * background picture. */
+ * & white variant, and "custom" is the user's uploaded picture as the page
+ * background — rendered with the void palette so the greys sit on any photo. */
 export type ThemeChoice = "ember" | "void" | "custom";
 
-/* Apply the theme: the custom palette goes on as inline CSS-variable
- * overrides, void via the data-theme attribute, ember by clearing both so
- * :root shows through. */
 export function applyTheme(theme: ThemeChoice): void {
-  if (theme === "custom") {
-    const custom = loadCustomTheme();
-    if (custom) {
-      delete document.documentElement.dataset.theme;
-      applyCustomVars(custom.vars);
-      return;
-    }
-    theme = "ember"; // stored image gone — fall back to the default
-  }
-  clearCustomVars();
-  if (theme === "void") document.documentElement.dataset.theme = "void";
+  const useVoid =
+    theme === "void" || (theme === "custom" && loadCustomBackground() != null);
+  if (useVoid) document.documentElement.dataset.theme = "void";
   else delete document.documentElement.dataset.theme;
 }
 
