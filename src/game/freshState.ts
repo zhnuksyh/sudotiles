@@ -14,7 +14,7 @@ export interface Puzzle {
 export function makePuzzle(difficulty: string): Puzzle {
   try {
     const d = difficultyFor(difficulty);
-    const givens = d.graded ? generateGraded(d.clues) : generate(d.clues);
+    const givens = d.graded ? generateGraded(d.clues, d.graded) : generate(d.clues);
     const solution = solve(givens);
     if (solution) {
       return { givens, solution };

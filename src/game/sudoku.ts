@@ -394,10 +394,14 @@ function fullSolution(): string {
  *
  * `getCandidatesMap` already applies full singles logic (naked singles via
  * peer elimination, hidden singles via last-place-in-unit assignment). The
- * helpers below layer the next tier of human techniques on top: locked
- * candidates (pointing/claiming) and naked pairs. A board that stalls even
- * with these needs advanced techniques (fish, wings, chains) or trial and
- * error — the bar for the Hardcore difficulty. */
+ * helpers below layer further human techniques on top, in tiers:
+ *
+ *   tier 1: locked candidates (pointing/claiming) and naked pairs. Boards
+ *           that stall here need at least intermediate techniques — the bar
+ *           for the Extreme difficulty.
+ *   tier 2: tier 1 plus hidden pairs, naked triples, and X-wings. Boards
+ *           that stall even here need wings, chains, or trial and error —
+ *           the bar for the Hardcore difficulty. */
 
 // UNITS is built rows first, then columns, then boxes (see getAllUnits).
 const LINE_UNITS = UNITS.slice(0, 18);
@@ -409,11 +413,11 @@ function boxIndexOf(square: string): number {
   return Math.floor(r / 3) * 3 + Math.floor(c / 3);
 }
 
-/* One pass of locked candidates + naked pairs over `candidates`. Eliminations
- * go through eliminate(), so singles cascades run automatically. Returns
- * whether any elimination was made ("stalled" when false), or false early on
- * a contradiction (which a valid unique puzzle never produces). */
-function applyBasicTechniques(candidates: CandidateMap): boolean {
+/* One pass of the techniques for `tier` over `candidates`. Eliminations go
+ * through eliminate(), so singles cascades run automatically. Returns whether
+ * any elimination was made ("stalled" when false), or false early on a
+ * contradiction (which a valid unique puzzle never produces). */
+function applyTechniques(candidates: CandidateMap, tier: number): boolean {
   let changed = false;
 
   const drop = (square: string, val: string): boolean => {
@@ -474,29 +478,109 @@ function applyBasicTechniques(candidates: CandidateMap): boolean {
     }
   }
 
+  if (tier < 2) return changed;
+
+  // Hidden pairs: two digits whose only homes in a unit are the same two
+  // cells lock those cells to the pair, clearing their other candidates.
+  for (const unit of UNITS) {
+    for (let a = 0; a < DIGITS.length; a++) {
+      const placesA = unit.filter(
+        (sq) => candidates[sq].length > 1 && candidates[sq].indexOf(DIGITS[a]) !== -1,
+      );
+      if (placesA.length !== 2) continue;
+      for (let b = a + 1; b < DIGITS.length; b++) {
+        const placesB = unit.filter(
+          (sq) => candidates[sq].length > 1 && candidates[sq].indexOf(DIGITS[b]) !== -1,
+        );
+        if (placesB.length !== 2 || placesB[0] !== placesA[0] || placesB[1] !== placesA[1]) continue;
+        for (const sq of placesA) {
+          for (const d of candidates[sq]) {
+            if (d !== DIGITS[a] && d !== DIGITS[b] && !drop(sq, d)) return false;
+          }
+        }
+      }
+    }
+  }
+
+  // Naked triples: three cells in a unit whose combined candidates are just
+  // three digits exclude those digits from the rest of the unit.
+  for (const unit of UNITS) {
+    const cells = unit.filter((sq) => candidates[sq].length === 2 || candidates[sq].length === 3);
+    for (let i = 0; i < cells.length; i++) {
+      for (let j = i + 1; j < cells.length; j++) {
+        for (let k = j + 1; k < cells.length; k++) {
+          const union = new Set(
+            candidates[cells[i]] + candidates[cells[j]] + candidates[cells[k]],
+          );
+          if (union.size !== 3) continue;
+          for (const sq of unit) {
+            if (sq === cells[i] || sq === cells[j] || sq === cells[k]) continue;
+            for (const d of union) {
+              if (!drop(sq, d)) return false;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // X-wing: a digit with exactly two spots in each of two rows, aligned on
+  // the same two columns, can be dropped from those columns elsewhere (and
+  // the same with rows/columns swapped).
+  for (const [bases, covers] of [
+    [UNITS.slice(0, 9), UNITS.slice(9, 18)],
+    [UNITS.slice(9, 18), UNITS.slice(0, 9)],
+  ]) {
+    for (const d of DIGITS) {
+      const basePlaces = bases.map((unit) =>
+        unit.filter((sq) => candidates[sq].length > 1 && candidates[sq].indexOf(d) !== -1),
+      );
+      for (let i = 0; i < 9; i++) {
+        if (basePlaces[i].length !== 2) continue;
+        for (let j = i + 1; j < 9; j++) {
+          if (basePlaces[j].length !== 2) continue;
+          const coverIdx = basePlaces[i].map((sq) =>
+            covers.findIndex((unit) => unit.indexOf(sq) !== -1),
+          );
+          const coverIdxJ = basePlaces[j].map((sq) =>
+            covers.findIndex((unit) => unit.indexOf(sq) !== -1),
+          );
+          if (coverIdx[0] !== coverIdxJ[0] || coverIdx[1] !== coverIdxJ[1]) continue;
+          const corners = [...basePlaces[i], ...basePlaces[j]];
+          for (const ci of coverIdx) {
+            for (const sq of covers[ci]) {
+              if (corners.indexOf(sq) !== -1) continue;
+              if (!drop(sq, d)) return false;
+            }
+          }
+        }
+      }
+    }
+  }
+
   return changed;
 }
 
-/* Whether `board` can be completed using only basic human techniques:
- * singles, locked candidates, and naked pairs. */
-export function solvableWithBasics(board: string): boolean {
+/* Whether `board` can be completed using only the human techniques up to
+ * `tier` (see the tier list above; singles are always included). */
+export function solvableAtTier(board: string, tier: number): boolean {
   const candidates = getCandidatesMap(board);
   if (!candidates) return false;
   for (;;) {
     if (SQUARES.every((sq) => candidates[sq].length === 1)) return true;
-    if (!applyBasicTechniques(candidates)) return false;
+    if (!applyTechniques(candidates, tier)) return false;
   }
 }
 
-/* Generate a puzzle at `clues` givens that is NOT solvable with basic
- * techniques alone, so advanced techniques (or trial and error) are required.
+/* Generate a puzzle at `clues` givens that is NOT solvable with the `tier`
+ * techniques alone, so harder techniques (or trial and error) are required.
  * Tries fresh boards until one qualifies or `budgetMs` elapses, then returns
  * the last attempt so callers always get a valid (if occasionally tamer)
  * board. */
-export function generateGraded(clues: number, budgetMs = 2500): string {
+export function generateGraded(clues: number, tier: number, budgetMs = 2500): string {
   const deadline = Date.now() + budgetMs;
   let board = generate(clues);
-  while (solvableWithBasics(board) && Date.now() < deadline) {
+  while (solvableAtTier(board, tier) && Date.now() < deadline) {
     board = generate(clues);
   }
   return board;

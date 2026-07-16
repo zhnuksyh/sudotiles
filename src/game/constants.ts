@@ -26,9 +26,10 @@ export interface Difficulty {
   label: string;
   desc: string;
   clues: number;
-  /* Graded tiers are additionally screened so basic techniques (singles,
-   * locked candidates, naked pairs) can't finish the board. */
-  graded?: boolean;
+  /* Graded tiers are additionally screened so the human techniques up to
+   * this tier (see sudoku.ts) can't finish the board. Hardcore is always the
+   * top tier; when a harder one lands, the old top gets a new name below it. */
+  graded?: number;
 }
 
 export const DIFFICULTIES: Difficulty[] = [
@@ -36,7 +37,8 @@ export const DIFFICULTIES: Difficulty[] = [
   { label: "Medium", desc: "A balanced board", clues: 36 },
   { label: "Expert", desc: "Fewer clues to lean on", clues: 30 },
   { label: "Hard", desc: "Barely any clues at all", clues: 25 },
-  { label: "Hardcore", desc: "Singles won't save you", clues: 24, graded: true },
+  { label: "Extreme", desc: "Singles won't save you", clues: 24, graded: 1 },
+  { label: "Hardcore", desc: "Even X-wings fall short", clues: 23, graded: 2 },
 ];
 
 export const DEFAULT_DIFFICULTY = "Medium";
