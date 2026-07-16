@@ -32,7 +32,7 @@ export const DIFFICULTIES: Difficulty[] = [
   { label: "Easy", desc: "More clues, forgiving pace", clues: 45 },
   { label: "Medium", desc: "A balanced board", clues: 36 },
   { label: "Expert", desc: "Fewer clues to lean on", clues: 30 },
-  { label: "Hardcore", desc: "Barely any clues at all", clues: 25 },
+  { label: "Hard", desc: "Barely any clues at all", clues: 25 },
 ];
 
 export const DEFAULT_DIFFICULTY = "Medium";
