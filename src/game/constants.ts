@@ -35,8 +35,8 @@ export interface Difficulty {
 export const DIFFICULTIES: Difficulty[] = [
   { label: "Easy", desc: "More clues, forgiving pace", clues: 45 },
   { label: "Medium", desc: "A balanced board", clues: 36 },
-  { label: "Expert", desc: "Fewer clues to lean on", clues: 30 },
-  { label: "Hard", desc: "Barely any clues at all", clues: 25 },
+  { label: "Hard", desc: "Fewer clues to lean on", clues: 30 },
+  { label: "Expert", desc: "Barely any clues at all", clues: 25 },
   { label: "Extreme", desc: "Singles won't save you", clues: 24, graded: 1 },
   { label: "Hardcore", desc: "Even X-wings fall short", clues: 23, graded: 2 },
 ];
