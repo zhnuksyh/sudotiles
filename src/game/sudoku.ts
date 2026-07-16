@@ -390,6 +390,118 @@ function fullSolution(): string {
   throw new Error("Failed to build a full solution.");
 }
 
+/* ---- Human-technique grading -------------------------------------------
+ *
+ * `getCandidatesMap` already applies full singles logic (naked singles via
+ * peer elimination, hidden singles via last-place-in-unit assignment). The
+ * helpers below layer the next tier of human techniques on top: locked
+ * candidates (pointing/claiming) and naked pairs. A board that stalls even
+ * with these needs advanced techniques (fish, wings, chains) or trial and
+ * error — the bar for the Hardcore difficulty. */
+
+// UNITS is built rows first, then columns, then boxes (see getAllUnits).
+const LINE_UNITS = UNITS.slice(0, 18);
+const BOX_UNITS = UNITS.slice(18);
+
+function boxIndexOf(square: string): number {
+  const r = ROWS.indexOf(square[0]);
+  const c = COLS.indexOf(square[1]);
+  return Math.floor(r / 3) * 3 + Math.floor(c / 3);
+}
+
+/* One pass of locked candidates + naked pairs over `candidates`. Eliminations
+ * go through eliminate(), so singles cascades run automatically. Returns
+ * whether any elimination was made ("stalled" when false), or false early on
+ * a contradiction (which a valid unique puzzle never produces). */
+function applyBasicTechniques(candidates: CandidateMap): boolean {
+  let changed = false;
+
+  const drop = (square: string, val: string): boolean => {
+    if (candidates[square].length > 1 && candidates[square].indexOf(val) !== -1) {
+      if (!eliminate(candidates, square, val)) return false;
+      changed = true;
+    }
+    return true;
+  };
+
+  // Pointing: within a box, a digit confined to one row/column can be dropped
+  // from the rest of that row/column.
+  for (const box of BOX_UNITS) {
+    for (const d of DIGITS) {
+      const places = box.filter((sq) => candidates[sq].length > 1 && candidates[sq].indexOf(d) !== -1);
+      if (places.length < 2) continue;
+      const sameRow = places.every((sq) => sq[0] === places[0][0]);
+      const sameCol = places.every((sq) => sq[1] === places[0][1]);
+      if (!sameRow && !sameCol) continue;
+      const line = sameRow ? cross(places[0][0], COLS) : cross(ROWS, places[0][1]);
+      for (const sq of line) {
+        if (box.indexOf(sq) !== -1) continue;
+        if (!drop(sq, d)) return false;
+      }
+    }
+  }
+
+  // Claiming: within a row/column, a digit confined to one box can be dropped
+  // from the rest of that box.
+  for (const line of LINE_UNITS) {
+    for (const d of DIGITS) {
+      const places = line.filter((sq) => candidates[sq].length > 1 && candidates[sq].indexOf(d) !== -1);
+      if (places.length < 2) continue;
+      const box = boxIndexOf(places[0]);
+      if (!places.every((sq) => boxIndexOf(sq) === box)) continue;
+      for (const sq of BOX_UNITS[box]) {
+        if (line.indexOf(sq) !== -1) continue;
+        if (!drop(sq, d)) return false;
+      }
+    }
+  }
+
+  // Naked pairs: two cells in a unit sharing the same two candidates exclude
+  // those digits from the rest of the unit.
+  for (const unit of UNITS) {
+    const pairCells = unit.filter((sq) => candidates[sq].length === 2);
+    for (let i = 0; i < pairCells.length; i++) {
+      for (let j = i + 1; j < pairCells.length; j++) {
+        const pair = candidates[pairCells[i]];
+        if (pair !== candidates[pairCells[j]]) continue;
+        for (const sq of unit) {
+          if (sq === pairCells[i] || sq === pairCells[j]) continue;
+          for (const d of pair) {
+            if (!drop(sq, d)) return false;
+          }
+        }
+      }
+    }
+  }
+
+  return changed;
+}
+
+/* Whether `board` can be completed using only basic human techniques:
+ * singles, locked candidates, and naked pairs. */
+export function solvableWithBasics(board: string): boolean {
+  const candidates = getCandidatesMap(board);
+  if (!candidates) return false;
+  for (;;) {
+    if (SQUARES.every((sq) => candidates[sq].length === 1)) return true;
+    if (!applyBasicTechniques(candidates)) return false;
+  }
+}
+
+/* Generate a puzzle at `clues` givens that is NOT solvable with basic
+ * techniques alone, so advanced techniques (or trial and error) are required.
+ * Tries fresh boards until one qualifies or `budgetMs` elapses, then returns
+ * the last attempt so callers always get a valid (if occasionally tamer)
+ * board. */
+export function generateGraded(clues: number, budgetMs = 2500): string {
+  const deadline = Date.now() + budgetMs;
+  let board = generate(clues);
+  while (solvableWithBasics(board) && Date.now() < deadline) {
+    board = generate(clues);
+  }
+  return board;
+}
+
 /* Generate a new puzzle as an 81-character board string, where `clues` is the
  * number of given squares (clamped to [17, 81]). Returned boards are solvable
  * and have a unique solution.

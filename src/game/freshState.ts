@@ -1,5 +1,5 @@
-import { cluesFor, DEFAULT_DIFFICULTY, GIVENS, MAX_HEARTS, SOLUTION } from "./constants";
-import { generate, solve } from "./sudoku";
+import { DEFAULT_DIFFICULTY, difficultyFor, GIVENS, MAX_HEARTS, SOLUTION } from "./constants";
+import { generate, generateGraded, solve } from "./sudoku";
 import type { Cell, GameState } from "./types";
 
 export interface Puzzle {
@@ -13,7 +13,8 @@ export interface Puzzle {
  * clue counts, so it normally runs in a Web Worker (see sudoku.worker.ts). */
 export function makePuzzle(difficulty: string): Puzzle {
   try {
-    const givens = generate(cluesFor(difficulty));
+    const d = difficultyFor(difficulty);
+    const givens = d.graded ? generateGraded(d.clues) : generate(d.clues);
     const solution = solve(givens);
     if (solution) {
       return { givens, solution };

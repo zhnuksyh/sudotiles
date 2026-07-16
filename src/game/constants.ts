@@ -26,6 +26,9 @@ export interface Difficulty {
   label: string;
   desc: string;
   clues: number;
+  /* Graded tiers are additionally screened so basic techniques (singles,
+   * locked candidates, naked pairs) can't finish the board. */
+  graded?: boolean;
 }
 
 export const DIFFICULTIES: Difficulty[] = [
@@ -33,12 +36,13 @@ export const DIFFICULTIES: Difficulty[] = [
   { label: "Medium", desc: "A balanced board", clues: 36 },
   { label: "Expert", desc: "Fewer clues to lean on", clues: 30 },
   { label: "Hard", desc: "Barely any clues at all", clues: 25 },
+  { label: "Hardcore", desc: "Singles won't save you", clues: 24, graded: true },
 ];
 
 export const DEFAULT_DIFFICULTY = "Medium";
 
-export function cluesFor(difficulty: string): number {
-  return DIFFICULTIES.find((d) => d.label === difficulty)?.clues ?? 36;
+export function difficultyFor(label: string): Difficulty {
+  return DIFFICULTIES.find((d) => d.label === label) ?? DIFFICULTIES[1];
 }
 
 export const STREAK_MILESTONE = 10;
