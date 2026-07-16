@@ -58,5 +58,5 @@ export function streakMultiplier(streak: number): number {
   return Math.min(1 + Math.floor(streak / STREAK_MILESTONE), MAX_STREAK_MULTIPLIER);
 }
 
-export const APP_VERSION = "1.1.0";
+export const APP_VERSION = "1.2.0";
 export const REPO_URL = "https://github.com/zhnuksyh/sudotiles";
