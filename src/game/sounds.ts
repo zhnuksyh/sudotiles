@@ -4,9 +4,16 @@
 
 let ctx: AudioContext | null = null;
 let enabled = true;
+/* Multiplies every SFX gain. Defaults to 1 (no change for the app); the
+ * trailer opts into a louder mix so SFX sit above the music bed. */
+let boost = 1;
 
 export function setSoundsEnabled(on: boolean): void {
   enabled = on;
+}
+
+export function setSoundsBoost(mult: number): void {
+  boost = mult;
 }
 
 function ac(): AudioContext | null {
@@ -33,7 +40,7 @@ function tone(freq: number, start: number, dur: number, opts: ToneOpts = {}): vo
   osc.type = opts.type ?? "sine";
   osc.frequency.setValueAtTime(freq, t0);
   if (opts.glide) osc.frequency.exponentialRampToValueAtTime(opts.glide, t0 + dur);
-  const peak = opts.gain ?? 0.12;
+  const peak = (opts.gain ?? 0.12) * boost;
   g.gain.setValueAtTime(0, t0);
   g.gain.linearRampToValueAtTime(peak, t0 + 0.012);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);

@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 CLAUDE.md
+TRAILER.md
 
 # Editor directories and files
 .vscode/*

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -8,4 +9,15 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/sudotiles/' : '/',
   plugins: [react(), tailwindcss()],
+  build: {
+    // The app and the kinetic-typography trailer are two independent HTML
+    // entries so they stay fully code-split: the app never downloads trailer
+    // code and the trailer (reachable at /trailer/) never pulls the app in.
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        trailer: resolve(__dirname, 'trailer/index.html'),
+      },
+    },
+  },
 })
