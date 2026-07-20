@@ -1,0 +1,111 @@
+/* Trailer-only motion. The app's index.css owns the shared tokens and its own
+ * keyframes (st-rise, st-pop, …); everything here is exclusive to /trailer/ and
+ * is never loaded by the app. */
+
+html,
+body,
+#trailer-root {
+  height: 100%;
+}
+
+/* Kinetic entrances — aggressive, Google-trailer style hard motion. */
+@keyframes tr-slam {
+  0% {
+    transform: scale(1.6);
+    opacity: 0;
+    filter: blur(14px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+@keyframes tr-rise {
+  0% {
+    transform: translateY(0.7em);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes tr-drop {
+  0% {
+    transform: translateY(-0.5em) scale(0.9);
+    opacity: 0;
+  }
+  65% {
+    transform: translateY(0.06em) scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes tr-cut {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes tr-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.25em);
+  }
+}
+
+/* Left-to-right typewriter reveal. */
+@keyframes tr-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes tr-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The white flash between scenes. */
+@keyframes tr-flash {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Pausing freezes every in-flight CSS animation on its current frame, so a
+ * resume continues mid-word with no drift. */
+.tr-paused *,
+.tr-paused *::before,
+.tr-paused *::after {
+  animation-play-state: paused !important;
+}
+
+/* While recording for export, hide chrome so the captured frame is clean. */
+.tr-recording {
+  cursor: none;
+}
