@@ -6,6 +6,7 @@ import SettingsScene from "./settingsScene";
 import WinBoard, { WIN_CUES } from "./winBoard";
 import SceneConfetti from "./sceneConfetti";
 import type { CueSpec } from "./audio";
+import { GitHubIcon } from "../src/components/icons";
 import { REPO_URL } from "../src/game/constants";
 
 export interface SceneProps {
@@ -190,6 +191,7 @@ function EndCard({ t }: SceneProps) {
           kind="cut"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-5 py-2.5 text-[clamp(0.9rem,2.4vw,1.3rem)] font-medium text-[#ecebe8] shadow-[0_0_0_1px_rgba(255,255,255,0.1)_inset]"
         >
+          <GitHubIcon />
           {REPO_URL.replace("https://github.com/", "github.com/")}
         </K>
       )}
