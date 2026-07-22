@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronLeftIcon } from "../src/components/icons";
 import Lesson from "./Lesson";
 import { LESSONS } from "./lessons";
 
@@ -22,23 +23,26 @@ export default function Learn() {
       {lesson ? (
         <Lesson lesson={lesson} onBack={() => setOpenId(null)} />
       ) : (
-        <div className="flex w-full max-w-[640px] flex-col items-center gap-6">
+        <div className="flex w-full max-w-[860px] flex-col gap-6">
+          {/* Top-left "Back" chevron to the game. */}
+          <a
+            href={gameHref}
+            className="flex w-fit items-center gap-1 rounded-[12px] bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-[#c2bcb2] no-underline transition-[filter] duration-100 ease-in-out hover:brightness-150"
+          >
+            <ChevronLeftIcon />
+            Back
+          </a>
+
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="m-0 text-[26px] font-semibold text-[#ecebe8]">Learn techniques</h1>
+            <h1 className="m-0 text-[26px] font-semibold text-[#ecebe8]">Learn Techniques</h1>
             <p className="m-0 max-w-[440px] text-[13.5px] leading-relaxed text-[#a49d92]">
               Interactive lessons for the patterns that crack harder puzzles. Each one runs on a real
               board — spot the pattern, make the move it unlocks.
             </p>
-            <a
-              href={gameHref}
-              className="mt-1 text-[13px] font-medium text-[var(--accent)] no-underline hover:brightness-125"
-            >
-              ← Back to the game
-            </a>
           </div>
 
           {LESSONS.length === 0 ? (
-            <p className="text-[13px] text-[#7d766c]">Lessons are on the way.</p>
+            <p className="text-center text-[13px] text-[#7d766c]">Lessons are on the way.</p>
           ) : (
             <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
               {LESSONS.map((l, i) => (

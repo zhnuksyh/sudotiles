@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import Cell from "./Cell";
+import type { LessonHighlight } from "./Cell";
 import { BOX_INDICES, deriveCellView } from "../game/derive";
 import { TUTORIAL_STEPS } from "../game/tutorial";
 import type { GameState } from "../game/types";
@@ -14,6 +15,10 @@ interface BoardProps {
   tutorialStep: number | null;
   onTutorialNext: () => void;
   onTutorialSkip: () => void;
+  /* Lesson-only emphasis (see Cell's LessonHighlight). The game omits these. */
+  unitCells?: number[];
+  patternCells?: number[];
+  targetCells?: number[];
 }
 
 /* The tutorial popup card, pinned to whichever half of the board keeps it
@@ -86,9 +91,20 @@ export default function Board({
   tutorialStep,
   onTutorialNext,
   onTutorialSkip,
+  unitCells,
+  patternCells,
+  targetCells,
 }: BoardProps) {
   const dragging = useRef(false);
   const tutorialCell = tutorialStep != null ? TUTORIAL_STEPS[tutorialStep].cell : undefined;
+
+  // Resolve a cell's lesson emphasis, most-specific first.
+  const highlightOf = (idx: number): LessonHighlight => {
+    if (targetCells?.includes(idx)) return "target";
+    if (patternCells?.includes(idx)) return "pattern";
+    if (unitCells?.includes(idx)) return "unit";
+    return undefined;
+  };
 
   const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     const idx = cellIndexAt(e.clientX, e.clientY);
@@ -132,6 +148,7 @@ export default function Board({
                 cell={deriveCellView(state, idx, guides)}
                 animate={animate}
                 tutorialTarget={idx === tutorialCell}
+                lessonHighlight={highlightOf(idx)}
               />
             ))}
           </div>

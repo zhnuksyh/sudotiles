@@ -1,12 +1,19 @@
 import type { CellView } from "../game/derive";
 
+/* Lesson-only emphasis layers, independent of the game's own highlights: the
+ * unit a technique operates in (soft wash), the pattern cells that form it
+ * (blue ring), and the target cell where a candidate gets crossed out (pulsing
+ * accent ring). The game never passes these. */
+export type LessonHighlight = "unit" | "pattern" | "target" | undefined;
+
 interface CellProps {
   cell: CellView;
   animate: boolean;
   tutorialTarget?: boolean;
+  lessonHighlight?: LessonHighlight;
 }
 
-export default function Cell({ cell, animate, tutorialTarget }: CellProps) {
+export default function Cell({ cell, animate, tutorialTarget, lessonHighlight }: CellProps) {
   return (
     <div
       data-cell={cell.index}
@@ -21,7 +28,13 @@ export default function Cell({ cell, animate, tutorialTarget }: CellProps) {
       {cell.isError && (
         <div className="absolute inset-0 rounded-[9px] bg-[rgba(224,96,96,0.15)]" />
       )}
-      {(tutorialTarget || cell.isHint) && (
+      {lessonHighlight === "unit" && (
+        <div className="absolute inset-0 rounded-[9px] bg-[rgba(120,170,255,0.10)]" />
+      )}
+      {lessonHighlight === "pattern" && (
+        <div className="absolute inset-0 rounded-[9px] bg-[rgba(120,170,255,0.14)] shadow-[0_0_0_2.5px_rgba(120,170,255,0.85)_inset]" />
+      )}
+      {(tutorialTarget || cell.isHint || lessonHighlight === "target") && (
         <div
           className="absolute inset-0 rounded-[9px] shadow-[0_0_0_2.5px_rgba(var(--accent-rgb),0.9)_inset]"
           style={{ animation: "st-pulse 1.3s ease-in-out infinite" }}

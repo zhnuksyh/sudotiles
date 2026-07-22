@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from "react";
 import Board from "../src/components/Board";
 import NumberPad from "../src/components/NumberPad";
+import { ChevronLeftIcon } from "../src/components/icons";
 import { sounds } from "../src/game/sounds";
 import type { Cell, GameState } from "../src/game/types";
-import type { Lesson } from "./lessons";
+import type { Lesson, LessonStep, LegendKind } from "./lessons";
 
 /* The lesson board as a GameState: givens from the puzzle string, plus the
  * pre-seeded (and learner-edited) candidate scribbles. Nothing is ever placed —
@@ -13,7 +14,6 @@ function buildState(
   lesson: Lesson,
   scribbles: Record<number, Set<string>>,
   selected: number | null,
-  highlight: number[],
 ): GameState {
   const board: Cell[] = [];
   for (let i = 0; i < 81; i++) {
@@ -35,7 +35,7 @@ function buildState(
     selected,
     multiSelected: selected == null ? [] : [selected],
     pencil: true, // notes-only lesson: the pad always toggles candidates
-    hintCells: highlight,
+    hintCells: [],
     started: true,
     hearts: 3,
     score: 0,
@@ -53,6 +53,25 @@ function seedScribbles(lesson: Lesson): Record<number, Set<string>> {
     out[Number(k)] = new Set(digits.split(""));
   }
   return out;
+}
+
+const LEGEND_SWATCH: Record<LegendKind, string> = {
+  unit: "bg-[rgba(120,170,255,0.18)] shadow-[0_0_0_1px_rgba(120,170,255,0.5)_inset]",
+  pattern: "bg-[rgba(120,170,255,0.22)] shadow-[0_0_0_2px_rgba(120,170,255,0.9)_inset]",
+  target: "bg-[rgba(var(--accent-rgb),0.18)] shadow-[0_0_0_2px_rgba(var(--accent-rgb),0.9)_inset]",
+};
+
+function Legend({ items }: { items: NonNullable<LessonStep["legend"]> }) {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
+      {items.map((it, i) => (
+        <span key={i} className="flex items-center gap-1.5">
+          <span className={`h-3.5 w-3.5 shrink-0 rounded-[4px] ${LEGEND_SWATCH[it.kind]}`} />
+          <span className="text-[11.5px] text-[#a49d92]">{it.label}</span>
+        </span>
+      ))}
+    </div>
+  );
 }
 
 interface LessonProps {
@@ -73,11 +92,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
   const noticeTimeout = useRef<number | undefined>(undefined);
 
   const s = lesson.steps[step];
-  const highlight = s.highlight ?? lesson.pattern;
-  const state = useMemo(
-    () => buildState(lesson, scribbles, selected, done ? [] : highlight),
-    [lesson, scribbles, selected, highlight, done],
-  );
+  const state = useMemo(() => buildState(lesson, scribbles, selected), [lesson, scribbles, selected]);
 
   const shake = () => {
     window.clearTimeout(shakeTimeout.current);
@@ -103,7 +118,6 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
     const digit = String(n);
     const isElim = selected === lesson.elim.cell && digit === lesson.elim.digit;
     const notes = scribbles[selected];
-    // Only allow editing cells that have candidate notes (the ones in play).
     if (!notes) {
       shake();
       showNotice("Work on a cell that shows candidate notes");
@@ -120,95 +134,130 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
       return;
     }
 
-    // Any other edit is a gentle nudge back to the intended cross-out.
     shake();
-    showNotice(`Cross the ${lesson.elim.digit} out of the highlighted cell`);
+    showNotice(`Cross the ${lesson.elim.digit} out of the gold cell`);
   };
 
   const isLast = step === lesson.steps.length - 1;
 
-  return (
-    <div className="flex w-full max-w-[min(560px,92vw)] flex-col items-center gap-4">
-      <div className="flex w-full items-center justify-between">
-        <button
-          onClick={onBack}
-          className="cursor-pointer rounded-[12px] border-none bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-[#c2bcb2] transition-[filter] duration-100 ease-in-out hover:brightness-150"
-        >
-          ← All techniques
-        </button>
-        <span className="text-[13px] font-medium text-[#7d766c]">
-          {step + 1} / {lesson.steps.length}
-        </span>
-      </div>
+  const backButton = (
+    <button
+      onClick={onBack}
+      className="flex w-fit cursor-pointer items-center gap-1 rounded-[12px] border-none bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-[#c2bcb2] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+    >
+      <ChevronLeftIcon />
+      Back
+    </button>
+  );
 
-      <div
-        className="relative"
-        style={{ animation: shaking ? "st-shake 0.45s ease-in-out" : undefined }}
-      >
-        <Board
-          state={state}
-          onSelect={onSelect}
-          onDragSelect={onSelect}
-          animate
-          guides={false}
-          tutorialStep={null}
-          onTutorialNext={() => {}}
-          onTutorialSkip={() => {}}
-        />
-        {notice && (
-          <div className="pointer-events-none absolute inset-0 z-[60] flex items-center justify-center">
-            <div
-              className="mx-6 rounded-full bg-[var(--menu0)] px-5 py-2.5 text-center text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
-              style={{ animation: "st-rise 0.25s ease-out both" }}
-            >
-              {notice}
-            </div>
+  const boardBlock = (
+    <div
+      className="relative"
+      style={{ animation: shaking ? "st-shake 0.45s ease-in-out" : undefined }}
+    >
+      <Board
+        state={state}
+        onSelect={onSelect}
+        onDragSelect={onSelect}
+        animate
+        guides={false}
+        tutorialStep={null}
+        onTutorialNext={() => {}}
+        onTutorialSkip={() => {}}
+        unitCells={done ? [] : s.unit}
+        patternCells={done ? [] : s.pattern}
+        targetCells={done ? [] : s.target}
+      />
+      {notice && (
+        <div className="pointer-events-none absolute inset-0 z-[60] flex items-center justify-center">
+          <div
+            className="mx-6 rounded-full bg-[var(--menu0)] px-5 py-2.5 text-center text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
+            style={{ animation: "st-rise 0.25s ease-out both" }}
+          >
+            {notice}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
+  );
 
-      {/* Notes-only pad: tapping a digit toggles that candidate in the selected
-          cell (left-click and right-click both scribble here). */}
-      <NumberPad onPlace={onScribble} onScribble={onScribble} />
-
-      <div
-        key={done ? "done" : step}
-        className="w-full rounded-[18px] bg-gradient-to-b from-[var(--menu0)] to-[var(--menu1)] p-4 shadow-[0_18px_44px_-10px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
-        style={{ animation: "st-rise 0.25s ease-out both" }}
-      >
-        {done ? (
-          <>
-            <div className="mb-1 text-[15px] font-semibold text-[var(--accent)]">Nicely done</div>
-            <p className="m-0 text-[12.5px] leading-relaxed text-[#c2bcb2]">
-              You spotted the {lesson.name.toLowerCase()} and made the elimination it unlocks. That
-              one cross-out is how these techniques chip away at a hard board. Try another, or head
-              back to the game and put it to work.
-            </p>
+  const narration = (
+    <div
+      key={done ? "done" : step}
+      className="w-full rounded-[18px] bg-gradient-to-b from-[var(--menu0)] to-[var(--menu1)] p-4 shadow-[0_18px_44px_-10px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
+      style={{ animation: "st-rise 0.25s ease-out both" }}
+    >
+      {done ? (
+        <>
+          <div className="mb-1 text-[15px] font-semibold text-[var(--accent)]">Nicely done</div>
+          <p className="m-0 text-[12.5px] leading-relaxed text-[#c2bcb2]">
+            You spotted the {lesson.name.toLowerCase()} and made the elimination it unlocks. That one
+            cross-out is how these techniques chip away at a hard board. Try another, or head back to
+            the game and put it to work.
+          </p>
+          <div className="mt-3 flex justify-end">
+            <button
+              onClick={onBack}
+              className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[#e5e1d8] to-[#c9c3b8] px-4 py-1.5 text-[12.5px] font-semibold text-[#191714] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
+            >
+              Back to techniques
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="mb-1.5 flex items-baseline justify-between gap-3">
+            <span className="text-[15px] font-semibold text-[var(--accent)]">{s.title}</span>
+            <span className="shrink-0 text-[11px] font-medium text-[#7d766c]">
+              {step + 1} / {lesson.steps.length}
+            </span>
+          </div>
+          <div className="flex flex-col gap-2">
+            {s.text.map((p, i) => (
+              <p key={i} className="m-0 text-[12.5px] leading-relaxed text-[#c2bcb2]">
+                {p}
+              </p>
+            ))}
+          </div>
+          {!s.awaitElim && (
             <div className="mt-3 flex justify-end">
               <button
-                onClick={onBack}
+                onClick={() => setStep((n) => Math.min(n + 1, lesson.steps.length - 1))}
                 className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[#e5e1d8] to-[#c9c3b8] px-4 py-1.5 text-[12.5px] font-semibold text-[#191714] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
               >
-                Back to techniques
+                {isLast ? "Finish" : "Next"}
               </button>
             </div>
-          </>
-        ) : (
-          <>
-            <div className="mb-1 text-[15px] font-semibold text-[var(--accent)]">{s.title}</div>
-            <p className="m-0 text-[12.5px] leading-relaxed text-[#c2bcb2]">{s.text}</p>
-            {!s.awaitElim && (
-              <div className="mt-3 flex justify-end">
-                <button
-                  onClick={() => setStep((n) => Math.min(n + 1, lesson.steps.length - 1))}
-                  className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[#e5e1d8] to-[#c9c3b8] px-4 py-1.5 text-[12.5px] font-semibold text-[#191714] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
-                >
-                  {isLast ? "Finish" : "Next"}
-                </button>
-              </div>
-            )}
-          </>
-        )}
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  const legend = !done && s.legend ? <Legend items={s.legend} /> : null;
+
+  /* Desktop (lg): board on the left; a right column with the vertical pad on
+     top and the narration below — mirrors the game's right layout. Below lg it
+     collapses to a single centred column with the horizontal pad. */
+  return (
+    <div className="flex w-full max-w-[860px] flex-col gap-4">
+      {backButton}
+      <div className="flex flex-col items-center gap-4 lg:grid lg:grid-cols-[560px_260px] lg:items-start lg:gap-x-6">
+        <div className="flex w-full max-w-[560px] flex-col items-center gap-3 lg:col-start-1 lg:row-start-1">
+          {boardBlock}
+          {legend}
+        </div>
+
+        {/* Right column on desktop; below the board on mobile. */}
+        <div className="flex w-full max-w-[min(560px,92vw)] flex-col gap-3 lg:col-start-2 lg:row-start-1 lg:w-[260px]">
+          <div className="hidden lg:block">
+            <NumberPad onPlace={onScribble} onScribble={onScribble} orientation="vertical" />
+          </div>
+          <div className="lg:hidden">
+            <NumberPad onPlace={onScribble} onScribble={onScribble} />
+          </div>
+          {narration}
+        </div>
       </div>
     </div>
   );
