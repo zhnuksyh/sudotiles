@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CloseIcon } from "./icons";
+import { ChevronRightIcon, CloseIcon } from "./icons";
 
 interface GuideModalProps {
   open: boolean;
@@ -163,7 +163,9 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
               Interactive lessons for pointing, pairs, X-wings and more
             </span>
           </span>
-          <span className="text-[18px] text-[var(--accent)]">→</span>
+          <span className="text-[var(--accent)]">
+            <ChevronRightIcon size={18} />
+          </span>
         </a>
 
         <SectionTitle>The goal</SectionTitle>
