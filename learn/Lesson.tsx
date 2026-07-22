@@ -140,6 +140,18 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
 
   const isLast = step === lesson.steps.length - 1;
 
+  // Move between instructions, with a soft page-turn tick on each switch.
+  const goNext = () => {
+    if (step >= lesson.steps.length - 1) return;
+    sounds.step();
+    setStep(step + 1);
+  };
+  const goPrev = () => {
+    if (step === 0) return;
+    sounds.step();
+    setStep(step - 1);
+  };
+
   const backButton = (
     <button
       onClick={onBack}
@@ -219,16 +231,28 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
               </p>
             ))}
           </div>
-          {!s.awaitElim && (
-            <div className="mt-3 flex justify-end">
+          <div className="mt-3 flex items-center justify-between">
+            {/* Re-read the previous instruction; hidden on the first step but
+                kept in the layout so the Next button stays right-aligned. */}
+            <button
+              onClick={goPrev}
+              disabled={step === 0}
+              className={`flex items-center gap-1 rounded-[10px] border-none bg-white/[0.06] px-3 py-1.5 text-[12.5px] font-medium text-[#c2bcb2] transition-[filter] duration-100 ease-in-out hover:brightness-150 ${
+                step === 0 ? "invisible" : "cursor-pointer"
+              }`}
+            >
+              <ChevronLeftIcon />
+              Back
+            </button>
+            {!s.awaitElim && (
               <button
-                onClick={() => setStep((n) => Math.min(n + 1, lesson.steps.length - 1))}
+                onClick={goNext}
                 className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[#e5e1d8] to-[#c9c3b8] px-4 py-1.5 text-[12.5px] font-semibold text-[#191714] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
               >
                 {isLast ? "Finish" : "Next"}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
     </div>

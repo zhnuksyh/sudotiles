@@ -77,6 +77,11 @@ export const sounds = {
     tone(440, 0, 0.09, { gain: 0.07 });
     tone(660, 0.08, 0.16, { gain: 0.08 });
   },
+  /* Lesson instruction advanced — a soft, short page-turn tick. */
+  step(): void {
+    if (!enabled) return;
+    tone(500, 0, 0.06, { glide: 600, gain: 0.06 });
+  },
   /* Row / column / box completed. */
   unit(): void {
     if (!enabled) return;
