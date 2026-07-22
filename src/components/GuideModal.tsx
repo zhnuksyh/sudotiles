@@ -152,6 +152,20 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
           Start the interactive tutorial
         </button>
 
+        <a
+          href={`${import.meta.env.BASE_URL}learn/`}
+          className="mt-2 flex items-center justify-between rounded-[14px] px-4 py-3 no-underline shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.12]"
+          style={{ background: "linear-gradient(180deg,#282520,#1e1b17)" }}
+        >
+          <span className="flex flex-col">
+            <span className="text-[14px] font-semibold text-[#e4e1db]">Learn techniques</span>
+            <span className="text-[11.5px] text-[#8a837a]">
+              Interactive lessons for pointing, pairs, X-wings and more
+            </span>
+          </span>
+          <span className="text-[18px] text-[var(--accent)]">→</span>
+        </a>
+
         <SectionTitle>The goal</SectionTitle>
         <p className="text-[13.5px] leading-relaxed text-[#b3ada3]">
           Fill the 9×9 grid so every <strong className="text-[#e4e1db]">row</strong>, every{" "}

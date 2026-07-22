@@ -10,13 +10,15 @@ export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/sudotiles/' : '/',
   plugins: [react(), tailwindcss()],
   build: {
-    // The app and the kinetic-typography trailer are two independent HTML
-    // entries so they stay fully code-split: the app never downloads trailer
-    // code and the trailer (reachable at /trailer/) never pulls the app in.
+    // The app, the kinetic-typography trailer, and the technique lessons are
+    // independent HTML entries so they stay fully code-split: the game page
+    // never downloads trailer or lesson code, and neither pulls the app in.
+    // Reachable at /trailer/ and /learn/.
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
         trailer: resolve(__dirname, 'trailer/index.html'),
+        learn: resolve(__dirname, 'learn/index.html'),
       },
     },
   },
