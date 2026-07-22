@@ -81,6 +81,7 @@ export default function MomentsBoard({ t }: { t: number }) {
       selected: snap.selected,
       multiSelected: [],
       pencil: false,
+      hintCells: [],
       started: true,
       hearts: snap.hearts,
       score: 2100,

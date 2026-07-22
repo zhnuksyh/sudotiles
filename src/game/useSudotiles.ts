@@ -6,6 +6,8 @@ import { deliverShareUrl, readSharedPuzzle, shareUrlFor } from "./share";
 import { clearCustomBackground, createCustomBackground, loadCustomBackground } from "./customTheme";
 import { applyTheme, loadSettings, saveSettings } from "./settings";
 import { setSoundsEnabled, sounds } from "./sounds";
+import { findNextStep } from "./sudoku";
+import type { HintTechnique } from "./sudoku";
 import { TUTORIAL_STEPS } from "./tutorial";
 import type { Settings, ThemeChoice } from "./settings";
 import type { Cell, GameState } from "./types";
@@ -49,6 +51,19 @@ function completedUnits(board: Cell[], idx: number): string[] {
   if (box.every(filled)) units.push("Box");
   return units;
 }
+
+/* Player-facing nudge for each technique — names it and says what to look for,
+ * without giving the answer. */
+const HINT_MESSAGES: Record<HintTechnique, string> = {
+  "naked single": "Naked single — only one number fits this cell",
+  "hidden single": "Hidden single — this digit has just one home in its unit",
+  pointing: "Pointing pair — this digit is locked to one line in its box",
+  claiming: "Claiming — this digit is locked to one box along its line",
+  "naked pair": "Naked pair — two cells share the same two candidates",
+  "hidden pair": "Hidden pair — two digits share just these two cells",
+  "naked triple": "Naked triple — three cells share the same three candidates",
+  "x-wing": "X-wing — this digit forms a rectangle across two lines",
+};
 
 export function useSudotiles() {
   const [settings, setSettings] = useState<Settings>(() => {
@@ -235,7 +250,7 @@ export function useSudotiles() {
   const select = useCallback((i: number) => {
     const s = stateRef.current;
     if (s.over || s.won || s.dealing) return;
-    const next = { ...s, selected: i, multiSelected: [i] };
+    const next = { ...s, selected: i, multiSelected: [i], hintCells: [] };
     setState(next);
     // Update the ref eagerly: drag pointermove events can arrive before the
     // next render refreshes stateRef.
@@ -520,6 +535,7 @@ export function useSudotiles() {
           board,
           // Placing a value only affects the anchor, so drop any drag selection.
           multiSelected: [s.selected],
+          hintCells: [],
           score: s.score + BASE_POINTS * streakMultiplier(streak),
           streak,
           won,
@@ -575,6 +591,7 @@ export function useSudotiles() {
           ...s,
           board,
           multiSelected: [s.selected],
+          hintCells: [],
           hearts,
           over: livesOn && hearts <= 0,
           streak: 0,
@@ -621,6 +638,30 @@ export function useSudotiles() {
     closeConfirm();
   }, [restart, closeConfirm]);
 
+  // Smart nudge: find the easiest available human technique on the current
+  // board (givens + correct placements only) and highlight its cell(s), naming
+  // the technique without revealing an answer. Costs the streak, like an error.
+  const hint = useCallback(() => {
+    const s = stateRef.current;
+    if (s.dealing || s.over || s.won || tutorialRef.current != null) return;
+    // Only givens and locked-in correct placements are trustworthy inputs;
+    // wrong entries and blanks are treated as empty.
+    const board = s.board
+      .map((c) => (c.value !== "" && !c.error ? c.value : "."))
+      .join("");
+    const step = findNextStep(board);
+    if (!step) {
+      shake();
+      showNotice("No simple next step — try a scribble");
+      return;
+    }
+    sounds.hint();
+    const next: GameState = { ...s, hintCells: step.cells, streak: 0 };
+    setState(next);
+    stateRef.current = next;
+    showNotice(HINT_MESSAGES[step.technique]);
+  }, [shake, showNotice]);
+
   return {
     state,
     settings,
@@ -656,6 +697,7 @@ export function useSudotiles() {
       scribbleToggle,
       placeNum,
       restart,
+      hint,
       openConfirm,
       closeConfirm,
       confirmRefresh,

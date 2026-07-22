@@ -75,6 +75,7 @@ const BOARD_STATE: GameState = {
   selected: 40,
   multiSelected: [],
   pencil: false,
+  hintCells: [],
   started: true,
   hearts: 3,
   score: 3200,

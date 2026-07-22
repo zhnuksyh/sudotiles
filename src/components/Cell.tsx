@@ -21,7 +21,7 @@ export default function Cell({ cell, animate, tutorialTarget }: CellProps) {
       {cell.isError && (
         <div className="absolute inset-0 rounded-[9px] bg-[rgba(224,96,96,0.15)]" />
       )}
-      {tutorialTarget && (
+      {(tutorialTarget || cell.isHint) && (
         <div
           className="absolute inset-0 rounded-[9px] shadow-[0_0_0_2.5px_rgba(var(--accent-rgb),0.9)_inset]"
           style={{ animation: "st-pulse 1.3s ease-in-out infinite" }}

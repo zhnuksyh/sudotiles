@@ -1,4 +1,4 @@
-import { BookIcon, EraserIcon, GearIcon, HistoryIcon, PencilIcon, RefreshIcon, ShareIcon } from "./icons";
+import { BookIcon, EraserIcon, GearIcon, HintIcon, HistoryIcon, PencilIcon, RefreshIcon, ShareIcon } from "./icons";
 
 const ACTIVE_BG = "rgba(var(--accent-rgb),0.12)";
 const ACTIVE_SHADOW = "0 0 0 2px rgba(var(--accent-rgb),0.65) inset";
@@ -11,6 +11,7 @@ interface ControlsProps {
   pencil: boolean;
   onTogglePencil: () => void;
   onErase: () => void;
+  onHint: () => void;
   onOpenDiff: () => void;
   onOpenGuide: () => void;
   onRefresh: () => void;
@@ -26,6 +27,7 @@ export default function Controls({
   pencil,
   onTogglePencil,
   onErase,
+  onHint,
   onOpenDiff,
   onOpenGuide,
   onRefresh,
@@ -69,6 +71,17 @@ export default function Controls({
       style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW, color: IDLE_COLOR }}
     >
       <EraserIcon />
+    </button>
+  );
+
+  const hintBtn = (
+    <button
+      onClick={onHint}
+      title="Hint"
+      className={`${buttonBase} flex items-center justify-center py-[11px]`}
+      style={{ background: IDLE_BG, boxShadow: IDLE_SHADOW, color: IDLE_COLOR }}
+    >
+      <HintIcon />
     </button>
   );
 
@@ -117,16 +130,17 @@ export default function Controls({
   );
 
   // Right-column layout uses a compact 3-wide grid; the default bottom layout
-  // spreads the seven buttons evenly in a single row.
+  // spreads the eight buttons evenly in a single row.
   const wrapClass = vertical
     ? "grid grid-cols-3 items-stretch gap-2"
-    : "grid grid-cols-7 items-stretch gap-1.5 sm:gap-2";
+    : "grid grid-cols-8 items-stretch gap-1.5 sm:gap-2";
 
   return (
     <div className={wrapClass}>
       {guideBtn}
       {pencilBtn}
       {eraseBtn}
+      {hintBtn}
       {shareBtn}
       {historyBtn}
       {refreshBtn}

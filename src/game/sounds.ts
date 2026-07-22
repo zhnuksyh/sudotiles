@@ -71,6 +71,12 @@ export const sounds = {
     tone(165, 0, 0.16, { type: "square", gain: 0.05 });
     tone(118, 0.08, 0.18, { type: "square", gain: 0.045 });
   },
+  /* Hint revealed — a soft, inquisitive rising chime. */
+  hint(): void {
+    if (!enabled) return;
+    tone(440, 0, 0.09, { gain: 0.07 });
+    tone(660, 0.08, 0.16, { gain: 0.08 });
+  },
   /* Row / column / box completed. */
   unit(): void {
     if (!enabled) return;

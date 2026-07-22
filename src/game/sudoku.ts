@@ -572,6 +572,197 @@ export function solvableAtTier(board: string, tier: number): boolean {
   }
 }
 
+/* ---- Hint: report the easiest next step ---------------------------------
+ *
+ * Unlike the grader (which eliminates to grade a whole board), a hint inspects
+ * the candidate map for the current board and reports the single easiest human
+ * step available, so the player can make the deduction themselves. Techniques
+ * are checked from easiest to hardest; the first one found is returned. The
+ * `cells` are the squares to highlight (as 0-80 board indices). */
+
+export type HintTechnique =
+  | "naked single"
+  | "hidden single"
+  | "pointing"
+  | "claiming"
+  | "naked pair"
+  | "hidden pair"
+  | "naked triple"
+  | "x-wing";
+
+export interface HintStep {
+  technique: HintTechnique;
+  /* Board indices (0-80) to highlight: the cell(s) the technique acts on. */
+  cells: number[];
+  /* The digit the technique concerns, when there is a single relevant one. */
+  digit?: string;
+}
+
+function squareToIndex(square: string): number {
+  return ROWS.indexOf(square[0]) * 9 + COLS.indexOf(square[1]);
+}
+
+/* Find the easiest available next step on `board` (an 81-char string of digits
+ * with '.' for blanks). Returns null when no supported technique applies (the
+ * board is solved, contradictory, or needs something beyond X-wing). */
+export function findNextStep(board: string): HintStep | null {
+  const candidates = getCandidatesMap(board);
+  if (!candidates) return null;
+
+  const unsolved = (sq: string) => candidates[sq].length > 1;
+  const has = (sq: string, d: string) => candidates[sq].indexOf(d) !== -1;
+
+  // Naked single: a cell already narrowed to one candidate. getCandidatesMap
+  // fully propagates singles, so any square left at length 1 that isn't a
+  // filled given/placement is a naked single to place.
+  const filled = getSquareValsMap(board);
+  for (const sq of SQUARES) {
+    if (candidates[sq].length === 1 && DIGITS.indexOf(filled[sq]) === -1) {
+      return { technique: "naked single", cells: [squareToIndex(sq)], digit: candidates[sq] };
+    }
+  }
+
+  // Hidden single: a digit with exactly one home left in some unit.
+  for (const unit of UNITS) {
+    for (const d of DIGITS) {
+      const places = unit.filter((sq) => unsolved(sq) && has(sq, d));
+      if (places.length === 1) {
+        return { technique: "hidden single", cells: [squareToIndex(places[0])], digit: d };
+      }
+    }
+  }
+
+  // Pointing: within a box, a digit confined to one row/column — and that
+  // actually eliminates something outside the box on that line.
+  for (const box of BOX_UNITS) {
+    for (const d of DIGITS) {
+      const places = box.filter((sq) => unsolved(sq) && has(sq, d));
+      if (places.length < 2) continue;
+      const sameRow = places.every((sq) => sq[0] === places[0][0]);
+      const sameCol = places.every((sq) => sq[1] === places[0][1]);
+      if (!sameRow && !sameCol) continue;
+      const line = sameRow ? cross(places[0][0], COLS) : cross(ROWS, places[0][1]);
+      const eliminates = line.some(
+        (sq) => box.indexOf(sq) === -1 && unsolved(sq) && has(sq, d),
+      );
+      if (eliminates) {
+        return { technique: "pointing", cells: places.map(squareToIndex), digit: d };
+      }
+    }
+  }
+
+  // Claiming: within a row/column, a digit confined to one box — and that
+  // actually eliminates something elsewhere in the box.
+  for (const line of LINE_UNITS) {
+    for (const d of DIGITS) {
+      const places = line.filter((sq) => unsolved(sq) && has(sq, d));
+      if (places.length < 2) continue;
+      const box = boxIndexOf(places[0]);
+      if (!places.every((sq) => boxIndexOf(sq) === box)) continue;
+      const eliminates = BOX_UNITS[box].some(
+        (sq) => line.indexOf(sq) === -1 && unsolved(sq) && has(sq, d),
+      );
+      if (eliminates) {
+        return { technique: "claiming", cells: places.map(squareToIndex), digit: d };
+      }
+    }
+  }
+
+  // Naked pair: two cells in a unit sharing the same two candidates that would
+  // remove a candidate from elsewhere in the unit.
+  for (const unit of UNITS) {
+    const pairCells = unit.filter((sq) => candidates[sq].length === 2);
+    for (let i = 0; i < pairCells.length; i++) {
+      for (let j = i + 1; j < pairCells.length; j++) {
+        const pair = candidates[pairCells[i]];
+        if (pair !== candidates[pairCells[j]]) continue;
+        const eliminates = unit.some(
+          (sq) =>
+            sq !== pairCells[i] &&
+            sq !== pairCells[j] &&
+            unsolved(sq) &&
+            (has(sq, pair[0]) || has(sq, pair[1])),
+        );
+        if (eliminates) {
+          return {
+            technique: "naked pair",
+            cells: [squareToIndex(pairCells[i]), squareToIndex(pairCells[j])],
+          };
+        }
+      }
+    }
+  }
+
+  // Hidden pair: two digits whose only homes in a unit are the same two cells,
+  // where those cells still hold other candidates to clear.
+  for (const unit of UNITS) {
+    for (let a = 0; a < DIGITS.length; a++) {
+      const placesA = unit.filter((sq) => unsolved(sq) && has(sq, DIGITS[a]));
+      if (placesA.length !== 2) continue;
+      for (let b = a + 1; b < DIGITS.length; b++) {
+        const placesB = unit.filter((sq) => unsolved(sq) && has(sq, DIGITS[b]));
+        if (placesB.length !== 2 || placesB[0] !== placesA[0] || placesB[1] !== placesA[1]) continue;
+        const eliminates = placesA.some((sq) =>
+          [...candidates[sq]].some((d) => d !== DIGITS[a] && d !== DIGITS[b]),
+        );
+        if (eliminates) {
+          return { technique: "hidden pair", cells: placesA.map(squareToIndex) };
+        }
+      }
+    }
+  }
+
+  // Naked triple: three cells in a unit whose combined candidates are just
+  // three digits, where that removes a candidate from elsewhere in the unit.
+  for (const unit of UNITS) {
+    const cells = unit.filter((sq) => candidates[sq].length === 2 || candidates[sq].length === 3);
+    for (let i = 0; i < cells.length; i++) {
+      for (let j = i + 1; j < cells.length; j++) {
+        for (let k = j + 1; k < cells.length; k++) {
+          const union = new Set(candidates[cells[i]] + candidates[cells[j]] + candidates[cells[k]]);
+          if (union.size !== 3) continue;
+          const trip = [cells[i], cells[j], cells[k]];
+          const eliminates = unit.some(
+            (sq) => trip.indexOf(sq) === -1 && unsolved(sq) && [...union].some((d) => has(sq, d)),
+          );
+          if (eliminates) {
+            return { technique: "naked triple", cells: trip.map(squareToIndex) };
+          }
+        }
+      }
+    }
+  }
+
+  // X-wing: a digit with exactly two spots in each of two lines, aligned on the
+  // same two cross-lines, removing that digit from the cross-lines elsewhere.
+  for (const [bases, covers] of [
+    [UNITS.slice(0, 9), UNITS.slice(9, 18)],
+    [UNITS.slice(9, 18), UNITS.slice(0, 9)],
+  ]) {
+    for (const d of DIGITS) {
+      const basePlaces = bases.map((unit) => unit.filter((sq) => unsolved(sq) && has(sq, d)));
+      for (let i = 0; i < 9; i++) {
+        if (basePlaces[i].length !== 2) continue;
+        for (let j = i + 1; j < 9; j++) {
+          if (basePlaces[j].length !== 2) continue;
+          const coverIdx = basePlaces[i].map((sq) => covers.findIndex((u) => u.indexOf(sq) !== -1));
+          const coverIdxJ = basePlaces[j].map((sq) => covers.findIndex((u) => u.indexOf(sq) !== -1));
+          if (coverIdx[0] !== coverIdxJ[0] || coverIdx[1] !== coverIdxJ[1]) continue;
+          const corners = [...basePlaces[i], ...basePlaces[j]];
+          const eliminates = coverIdx.some((ci) =>
+            covers[ci].some((sq) => corners.indexOf(sq) === -1 && unsolved(sq) && has(sq, d)),
+          );
+          if (eliminates) {
+            return { technique: "x-wing", cells: corners.map(squareToIndex), digit: d };
+          }
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 /* Generate a puzzle at `clues` givens that is NOT solvable with the `tier`
  * techniques alone, so harder techniques (or trial and error) are required.
  * Tries fresh boards until one qualifies or `budgetMs` elapses, then returns

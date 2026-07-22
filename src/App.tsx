@@ -116,6 +116,7 @@ function App() {
                 pencil={state.pencil}
                 onTogglePencil={actions.togglePencil}
                 onErase={actions.erase}
+                onHint={actions.hint}
                 onOpenDiff={actions.openDiff}
                 onOpenGuide={actions.openGuide}
                 onRefresh={actions.openConfirm}
@@ -136,6 +137,7 @@ function App() {
                 pencil={state.pencil}
                 onTogglePencil={actions.togglePencil}
                 onErase={actions.erase}
+                onHint={actions.hint}
                 onOpenDiff={actions.openDiff}
                 onOpenGuide={actions.openGuide}
                 onRefresh={actions.openConfirm}

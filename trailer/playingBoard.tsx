@@ -178,6 +178,7 @@ function stateFor(spec: BoardSpec, t: number): GameState {
     selected,
     multiSelected: [],
     pencil: false,
+    hintCells: [],
     started: true,
     hearts: 3,
     score,

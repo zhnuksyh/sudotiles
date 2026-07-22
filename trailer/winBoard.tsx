@@ -50,6 +50,7 @@ export default function WinBoard({ t }: { t: number }) {
       selected: filledLast ? null : LAST_CELL,
       multiSelected: [],
       pencil: false,
+      hintCells: [],
       started: true,
       hearts: 3,
       score: 8400,

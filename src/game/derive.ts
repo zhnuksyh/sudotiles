@@ -20,6 +20,7 @@ export interface CellView {
   isError: boolean;
   isPlayer: boolean;
   isScrib: boolean;
+  isHint: boolean;
   scribbles: string[];
 }
 
@@ -53,6 +54,7 @@ export function deriveCellView(state: GameState, idx: number, guides: boolean): 
     isError: hasVal && !cell.given && cell.error,
     isPlayer: hasVal && !cell.given && !cell.error,
     isScrib: !hasVal && cell.scribbles.some(Boolean),
+    isHint: state.hintCells.includes(idx),
     scribbles: cell.scribbles.map((on, i) => (on ? String(i + 1) : "")),
   };
 }

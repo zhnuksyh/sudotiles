@@ -15,6 +15,8 @@ export interface GameState {
   /* All selected cells (drag to multi-select); `selected` is the anchor. */
   multiSelected: number[];
   pencil: boolean;
+  /* Cells a hint is currently highlighting; empty when no hint is showing. */
+  hintCells: number[];
   started: boolean;
   hearts: number;
   score: number;
