@@ -126,8 +126,11 @@ export default function Board({
     dragging.current = false;
   };
 
+  /* Square board. The width cap also folds in viewport height so short
+   * (landscape) viewports shrink the board instead of pushing the number pad
+   * off-screen; --board-max-h is set per layout in index.css. */
   return (
-    <div className="relative box-border w-[560px] max-w-[90vw] rounded-[30px] bg-gradient-to-b from-[var(--board0)] to-[var(--board1)] p-4 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_34px_60px_-22px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)]">
+    <div className="relative box-border w-[560px] max-w-[min(90vw,max(260px,var(--board-max-h)))] rounded-[30px] bg-gradient-to-b from-[var(--board0)] to-[var(--board1)] p-4 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_34px_60px_-22px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)]">
       <div className="pointer-events-none absolute inset-0 rounded-[30px] bg-[radial-gradient(125%_80%_at_50%_-12%,rgba(255,255,255,0.05),rgba(255,255,255,0)_52%),radial-gradient(135%_130%_at_50%_118%,rgba(0,0,0,0.45),rgba(0,0,0,0)_58%)]" />
       {state.pencil && (
         <div className="pointer-events-none absolute inset-0 z-[5] rounded-[30px] shadow-[0_0_0_2px_rgba(var(--accent-rgb),0.7)_inset]" />

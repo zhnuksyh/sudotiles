@@ -139,6 +139,23 @@ body {
   background: var(--bg2);
 }
 
+/* Board size ceiling from available height, so landscape / short viewports
+ * shrink the square board rather than pushing the number pad off-screen.
+ * The subtrahend is the vertical chrome around the board (page padding, HUD,
+ * number pad, controls). Effectively unlimited when the viewport is tall
+ * enough that the 560px width cap wins anyway. */
+:root {
+  --board-max-h: calc(100dvh - 330px);
+}
+
+/* Landscape with the pad beside the board (the lg two-column layout): only
+ * the HUD and page padding sit above it, so far more height is available. */
+@media (orientation: landscape) and (min-width: 1024px) {
+  :root {
+    --board-max-h: calc(100dvh - 120px);
+  }
+}
+
 body {
   font-family: "Fredoka", sans-serif;
   -webkit-font-smoothing: antialiased;
