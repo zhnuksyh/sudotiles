@@ -27,8 +27,10 @@
   --btn1: #c9c3b8;
   --btn-ink: #191714;
 
-  /* Selection ring / active control tint, and the knob of a toggle. */
-  --sel-rgb: 216, 211, 202;
+  /* Selection ring / active control tint, and the knob of a toggle. Carries a
+   * clear amount of the accent hue so a selected cell reads as part of the
+   * theme rather than a neutral grey outline. */
+  --sel-rgb: 228, 196, 152;
   --knob: #191714;
 
   /* Semantic highlights. Errors stay red in every theme; the lesson
