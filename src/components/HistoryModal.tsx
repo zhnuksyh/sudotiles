@@ -38,7 +38,7 @@ function MiniBoard({ entry }: { entry: HistoryEntry }) {
             className="flex aspect-square items-center justify-center rounded-[3px] text-[10px] leading-none"
             style={{
               background: boxShade ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.02)",
-              color: given ? "#ecebe8" : "#7f7970",
+              color: given ? "var(--ink0)" : "var(--ink5)",
               fontWeight: given ? 600 : 400,
             }}
           >
@@ -83,13 +83,13 @@ export default function HistoryModal({ open, closing, animate, onShare, onClose 
         <button
           onClick={onClose}
           title="Close"
-          className="absolute top-[18px] right-[18px] z-10 flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-1.5 text-[#b3ada3] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+          className="absolute top-[18px] right-[18px] z-10 flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-1.5 text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
         >
           <CloseIcon />
         </button>
 
-        <div className="text-[20px] font-semibold text-[#ecebe8]">History</div>
-        <div className="mt-0.5 mb-3 text-[12px] text-[#8a837a]">
+        <div className="text-[20px] font-semibold text-[var(--ink0)]">History</div>
+        <div className="mt-0.5 mb-3 text-[12px] text-[var(--ink4)]">
           {entries.length === 0
             ? "Solved puzzles will show up here."
             : "Tap a puzzle to see the solved board."}
@@ -112,20 +112,20 @@ export default function HistoryModal({ open, closing, animate, onShare, onClose 
                     onClick={() => setExpanded(isOpen ? null : i)}
                     className="flex flex-1 cursor-pointer flex-col gap-0.5 border-none bg-transparent p-0 text-left"
                   >
-                    <span className="text-[15px] font-semibold text-[#e4e1db]">
+                    <span className="text-[15px] font-semibold text-[var(--ink1)]">
                       {entry.difficulty}
-                      <span className="ml-2 text-[12px] font-normal text-[#8a837a]">
+                      <span className="ml-2 text-[12px] font-normal text-[var(--ink4)]">
                         {formatDate(entry.date)}
                       </span>
                     </span>
-                    <span className="text-[12px] text-[#8a837a]">
+                    <span className="text-[12px] text-[var(--ink4)]">
                       {entry.score.toLocaleString()} pts · {formatTime(entry.elapsed)}
                     </span>
                   </button>
                   <button
                     onClick={() => onShare(entry.givens, entry.difficulty)}
                     title="Share this puzzle"
-                    className="flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-2 text-[#b3ada3] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+                    className="flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-2 text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
                   >
                     <ShareIcon />
                   </button>

@@ -49,16 +49,16 @@ function TutorialPopup({
     >
       <div className="mb-1 flex items-baseline justify-between gap-3">
         <span className="text-[15px] font-semibold text-[var(--accent)]">{s.title}</span>
-        <span className="shrink-0 text-[11px] font-medium text-[#7d766c]">
+        <span className="shrink-0 text-[11px] font-medium text-[var(--ink5)]">
           {step + 1} / {TUTORIAL_STEPS.length}
         </span>
       </div>
-      <p className="m-0 text-[12.5px] leading-relaxed text-[#c2bcb2]">{s.text}</p>
+      <p className="m-0 text-[12.5px] leading-relaxed text-[var(--ink2)]">{s.text}</p>
       <div className="mt-3 flex items-center justify-end gap-2">
         {!isLast && (
           <button
             onClick={onSkip}
-            className="cursor-pointer rounded-[10px] border-none bg-transparent px-3 py-1.5 text-[12.5px] font-medium text-[#8a837a] transition-[filter] duration-100 ease-in-out hover:brightness-140"
+            className="cursor-pointer rounded-[10px] border-none bg-transparent px-3 py-1.5 text-[12.5px] font-medium text-[var(--ink4)] transition-[filter] duration-100 ease-in-out hover:brightness-140"
           >
             Skip tutorial
           </button>
@@ -66,7 +66,7 @@ function TutorialPopup({
         {s.cell == null && (
           <button
             onClick={onNext}
-            className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[#e5e1d8] to-[#c9c3b8] px-4 py-1.5 text-[12.5px] font-semibold text-[#191714] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
+            className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[var(--btn0)] to-[var(--btn1)] px-4 py-1.5 text-[12.5px] font-semibold text-[var(--btn-ink)] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
           >
             {isLast ? "Finish" : "Next"}
           </button>

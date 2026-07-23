@@ -27,22 +27,22 @@ export default function Learn() {
           {/* Top-left "Back" chevron to the game. */}
           <a
             href={gameHref}
-            className="flex w-fit items-center gap-1 rounded-[12px] bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-[#c2bcb2] no-underline transition-[filter] duration-100 ease-in-out hover:brightness-150"
+            className="flex w-fit items-center gap-1 rounded-[12px] bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-[var(--ink2)] no-underline transition-[filter] duration-100 ease-in-out hover:brightness-150"
           >
             <ChevronLeftIcon />
             Back
           </a>
 
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="m-0 text-[26px] font-semibold text-[#ecebe8]">Learn Techniques</h1>
-            <p className="m-0 max-w-[440px] text-[13.5px] leading-relaxed text-[#a49d92]">
+            <h1 className="m-0 text-[26px] font-semibold text-[var(--ink0)]">Learn Techniques</h1>
+            <p className="m-0 max-w-[440px] text-[13.5px] leading-relaxed text-[var(--ink3)]">
               Interactive lessons for the patterns that crack harder puzzles. Each one runs on a real
               board — spot the pattern, make the move it unlocks.
             </p>
           </div>
 
           {LESSONS.length === 0 ? (
-            <p className="text-center text-[13px] text-[#7d766c]">Lessons are on the way.</p>
+            <p className="text-center text-[13px] text-[var(--ink5)]">Lessons are on the way.</p>
           ) : (
             <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
               {LESSONS.map((l, i) => (
@@ -55,9 +55,9 @@ export default function Learn() {
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(var(--accent-rgb),0.16)] text-[12px] font-semibold text-[var(--accent)]">
                       {i + 1}
                     </span>
-                    <span className="text-[15.5px] font-semibold text-[#e4e1db]">{l.name}</span>
+                    <span className="text-[15.5px] font-semibold text-[var(--ink1)]">{l.name}</span>
                   </span>
-                  <span className="text-[12.5px] leading-relaxed text-[#a49d92]">{l.tagline}</span>
+                  <span className="text-[12.5px] leading-relaxed text-[var(--ink3)]">{l.tagline}</span>
                 </button>
               ))}
             </div>

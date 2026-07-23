@@ -66,7 +66,7 @@ function App() {
       {notice && (
         <div className="pointer-events-none absolute inset-0 z-[60] flex items-center justify-center">
           <div
-            className="rounded-full bg-[var(--menu0)] px-5 py-2.5 text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
+            className="rounded-full bg-[var(--menu0)] px-5 py-2.5 text-[13px] font-medium text-[var(--ink1)] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
             style={{ animation: animate ? "st-rise 0.25s ease-out both" : undefined }}
           >
             {notice}

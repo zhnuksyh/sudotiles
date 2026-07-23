@@ -19,7 +19,23 @@ export interface ConfettiHandle {
   fire: (count: number, originXFrac?: number, originYFrac?: number) => void;
 }
 
-const COLORS = ["#d8d3ca", "#e0605f", "#5ec98a", "#5aa9f0", "#f5e9d0", "#c9a15e"];
+/* Confetti reads its palette from the theme so the win celebration matches the
+ * rest of the app (warm golds under Ember, greys under Void). Resolved lazily
+ * per burst — the theme can change between games. */
+const CONFETTI_VARS = [
+  "--confetti0",
+  "--confetti1",
+  "--confetti2",
+  "--confetti3",
+  "--confetti4",
+  "--confetti5",
+];
+
+function themeColors(): string[] {
+  const styles = getComputedStyle(document.documentElement);
+  const resolved = CONFETTI_VARS.map((v) => styles.getPropertyValue(v).trim()).filter(Boolean);
+  return resolved.length ? resolved : ["#d8d3ca"];
+}
 
 const Confetti = forwardRef<ConfettiHandle>((_props, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -68,6 +84,7 @@ const Confetti = forwardRef<ConfettiHandle>((_props, ref) => {
         h = c.offsetHeight;
       const ox = w * originXFrac;
       const oy = h * originYFrac;
+      const colors = themeColors();
       for (let i = 0; i < count; i++) {
         const a = Math.random() * Math.PI * 2,
           sp = 4 + Math.random() * 8;
@@ -78,7 +95,7 @@ const Confetti = forwardRef<ConfettiHandle>((_props, ref) => {
           vy: Math.sin(a) * sp - 5,
           g: 0.14 + Math.random() * 0.1,
           size: 5 + Math.random() * 7,
-          color: COLORS[i % COLORS.length],
+          color: colors[i % colors.length],
           rot: Math.random() * 6,
           vr: (Math.random() - 0.5) * 0.5,
           life: 0,

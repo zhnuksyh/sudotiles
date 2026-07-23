@@ -4,13 +4,47 @@
   --font-sans: "Fredoka", sans-serif;
 }
 
-/* Theme tokens: the default warm dark look. A custom background picture
- * overrides these as inline variables on <html> with a palette derived from
- * the image (see customTheme.ts). Text greys are shared. */
+/* Theme tokens: the default warm dark look. Every surface, ink and highlight
+ * colour in the app comes from these variables — components must never
+ * hardcode a hex, or the theme stops applying to them. The "void" block below
+ * overrides the same names with neutral greys; a custom background picture
+ * uses the void palette with the photo behind it (see settings.ts). */
 :root {
   --accent: #dcb887;
   --accent-strong: #e0aa60;
   --accent-rgb: 224, 170, 96;
+
+  /* Ink scale, brightest to faintest. */
+  --ink0: #ecebe8;
+  --ink1: #e4e1db;
+  --ink2: #c2bcb2;
+  --ink3: #a49d92;
+  --ink4: #8a837a;
+  --ink5: #7d766c;
+
+  /* Primary (light-on-dark) button. */
+  --btn0: #e5e1d8;
+  --btn1: #c9c3b8;
+  --btn-ink: #191714;
+
+  /* Selection ring / active control tint, and the knob of a toggle. */
+  --sel-rgb: 216, 211, 202;
+  --knob: #191714;
+
+  /* Semantic highlights. Errors stay red in every theme; the lesson
+   * pattern colour follows the accent so it reads as part of the theme. */
+  --error: #e0605f;
+  --error-rgb: 224, 96, 96;
+  --pattern-rgb: 120, 170, 255;
+  --heart-empty: #3a3733;
+
+  /* Win-celebration confetti (read by Confetti.tsx). */
+  --confetti0: #dcb887;
+  --confetti1: #e0aa60;
+  --confetti2: #f5e9d0;
+  --confetti3: #c9a15e;
+  --confetti4: #e0605f;
+  --confetti5: #d8d3ca;
   --bg0: #171614;
   --bg1: #100f0e;
   --bg2: #0a0908;
@@ -35,6 +69,34 @@
   --accent: #e6e6e6;
   --accent-strong: #cfcfcf;
   --accent-rgb: 224, 224, 224;
+
+  --ink0: #ededed;
+  --ink1: #e2e2e2;
+  --ink2: #bcbcbc;
+  --ink3: #9e9e9e;
+  --ink4: #858585;
+  --ink5: #787878;
+
+  --btn0: #e2e2e2;
+  --btn1: #c4c4c4;
+  --btn-ink: #171717;
+
+  --sel-rgb: 211, 211, 211;
+  --knob: #171717;
+
+  /* Greyscale mistakes and lesson highlights so nothing warm or blue
+   * leaks into the black & white look. */
+  --error: #d0d0d0;
+  --error-rgb: 208, 208, 208;
+  --pattern-rgb: 235, 235, 235;
+  --heart-empty: #3a3a3a;
+
+  --confetti0: #ffffff;
+  --confetti1: #dedede;
+  --confetti2: #b8b8b8;
+  --confetti3: #949494;
+  --confetti4: #6f6f6f;
+  --confetti5: #efefef;
   --bg0: #161616;
   --bg1: #0f0f0f;
   --bg2: #090909;

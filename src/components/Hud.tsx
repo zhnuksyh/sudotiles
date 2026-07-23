@@ -26,23 +26,23 @@ export default function Hud({ hearts, score, elapsed, streak, showLives, showTim
       </div>
       <div className="flex items-start justify-self-center gap-[26px] sm:gap-[34px]">
         <div className="text-center">
-          <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">SCORE</div>
-          <div className="text-[26px] leading-[1.05] font-semibold text-[#ecebe8] sm:text-[32px]">
+          <div className="text-[11px] font-medium tracking-[2.5px] text-[var(--ink5)]">SCORE</div>
+          <div className="text-[26px] leading-[1.05] font-semibold text-[var(--ink0)] sm:text-[32px]">
             {score.toLocaleString()}
           </div>
         </div>
         {showTimer && (
           <div className="text-center">
-            <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">TIME</div>
-            <div className="text-[26px] leading-[1.05] font-semibold text-[#b3ada3] [font-variant-numeric:tabular-nums] sm:text-[32px]">
+            <div className="text-[11px] font-medium tracking-[2.5px] text-[var(--ink5)]">TIME</div>
+            <div className="text-[26px] leading-[1.05] font-semibold text-[var(--ink2)] [font-variant-numeric:tabular-nums] sm:text-[32px]">
               {timeLabel}
             </div>
           </div>
         )}
       </div>
       <div className="flex flex-col items-end justify-self-end">
-        <div className="text-[11px] font-medium tracking-[2.5px] text-[#7d766c]">STREAK</div>
-        <span className="flex items-baseline gap-1.5 text-[26px] leading-[1.05] font-semibold text-[#d8d3ca] sm:text-[32px]">
+        <div className="text-[11px] font-medium tracking-[2.5px] text-[var(--ink5)]">STREAK</div>
+        <span className="flex items-baseline gap-1.5 text-[26px] leading-[1.05] font-semibold text-[var(--ink1)] sm:text-[32px]">
           {streak}
           {mult > 1 && (
             <span className="text-[15px] font-semibold text-[var(--accent)] sm:text-[17px]">

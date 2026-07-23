@@ -3,12 +3,12 @@ import { APP_VERSION, DIFFICULTIES, REPO_URL } from "../game/constants";
 import type { NumpadPosition, Settings, ThemeChoice } from "../game/settings";
 import { ChevronDownIcon, CloseIcon, GitHubIcon } from "./icons";
 
-const ACTIVE_BG = "rgba(226,224,220,0.10)";
-const ACTIVE_SHADOW = "0 0 0 2px rgba(214,210,203,0.55) inset";
-const ACTIVE_COLOR = "#e0ddd6";
+const ACTIVE_BG = "rgba(var(--sel-rgb),0.10)";
+const ACTIVE_SHADOW = "0 0 0 2px rgba(var(--sel-rgb),0.55) inset";
+const ACTIVE_COLOR = "var(--ink0)";
 const IDLE_BG = "linear-gradient(180deg,var(--row0),var(--row1))";
 const IDLE_SHADOW = "0 1px 0 rgba(255,255,255,0.04) inset";
-const IDLE_COLOR = "#e4e1db";
+const IDLE_COLOR = "var(--ink1)";
 
 interface SettingsModalProps {
   open: boolean;
@@ -36,7 +36,7 @@ const isTouchDevice =
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <div className="mt-3 mb-1 text-[11px] font-semibold tracking-[1.5px] text-[#7d766c] uppercase">
+    <div className="mt-3 mb-1 text-[11px] font-semibold tracking-[1.5px] text-[var(--ink5)] uppercase">
       {children}
     </div>
   );
@@ -50,13 +50,13 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: () => void; la
       aria-checked={on}
       className="flex cursor-pointer items-center justify-between border-none bg-transparent px-1 py-2 text-left transition-[filter] duration-100 ease-in-out hover:brightness-[1.1]"
     >
-      <span className="text-[15px] font-medium text-[#e4e1db]">{label}</span>
+      <span className="text-[15px] font-medium text-[var(--ink1)]">{label}</span>
       <span
         className="relative inline-flex h-[26px] w-[46px] shrink-0 items-center rounded-full transition-colors duration-150"
-        style={{ background: on ? "rgba(214,210,203,0.85)" : "rgba(255,255,255,0.10)" }}
+        style={{ background: on ? "rgba(var(--sel-rgb),0.85)" : "rgba(255,255,255,0.10)" }}
       >
         <span
-          className="absolute h-[20px] w-[20px] rounded-full bg-[#191714] transition-transform duration-150"
+          className="absolute h-[20px] w-[20px] rounded-full bg-[var(--knob)] transition-transform duration-150"
           style={{ transform: on ? "translateX(23px)" : "translateX(3px)" }}
         />
       </span>
@@ -88,10 +88,10 @@ function DifficultyDropdown({
           <span className="text-[16px] font-semibold" style={{ color: IDLE_COLOR }}>
             {current.label}
           </span>
-          <span className="text-[12px] font-normal text-[#8a837a]">{current.desc}</span>
+          <span className="text-[12px] font-normal text-[var(--ink4)]">{current.desc}</span>
         </span>
         <span
-          className="shrink-0 text-[#8a837a] transition-transform duration-150"
+          className="shrink-0 text-[var(--ink4)] transition-transform duration-150"
           style={{ transform: open ? "rotate(180deg)" : "none" }}
         >
           <ChevronDownIcon />
@@ -132,7 +132,7 @@ function DifficultyDropdown({
                   >
                     {d.label}
                   </span>
-                  <span className="text-[11.5px] font-normal text-[#8a837a]">{d.desc}</span>
+                  <span className="text-[11.5px] font-normal text-[var(--ink4)]">{d.desc}</span>
                 </button>
               );
             })}
@@ -169,6 +169,8 @@ function BackgroundPicker({
       active ? "" : "hover:shadow-[0_0_0_1.5px_rgba(var(--accent-rgb),0.55)_inset]"
     }`;
 
+  // Swatch previews are deliberately literal: each tile must show its own
+  // theme's colours, not the theme that happens to be active.
   const presets: { id: ThemeChoice; label: string; title: string; surface: string; accent: string }[] = [
     { id: "ember", label: "Ember", title: "The default warm dark look", surface: "#211f1d", accent: "#dcb887" },
     { id: "void", label: "Void", title: "Black & white", surface: "#1f1f1f", accent: "#e6e6e6" },
@@ -215,7 +217,7 @@ function BackgroundPicker({
               </span>
               <span
                 className="text-[11.5px] font-medium"
-                style={{ color: active ? ACTIVE_COLOR : "#8a837a" }}
+                style={{ color: active ? ACTIVE_COLOR : "var(--ink4)" }}
               >
                 {p.label}
               </span>
@@ -236,7 +238,7 @@ function BackgroundPicker({
           }}
         >
           <span
-            className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-cover bg-center text-[16px] leading-none text-[#8a837a]"
+            className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-cover bg-center text-[16px] leading-none text-[var(--ink4)]"
             style={{
               backgroundImage: customBg ? `url("${customBg}")` : undefined,
               boxShadow: customBg
@@ -248,7 +250,7 @@ function BackgroundPicker({
           </span>
           <span
             className="text-[11.5px] font-medium"
-            style={{ color: customActive ? ACTIVE_COLOR : "#8a837a" }}
+            style={{ color: customActive ? ACTIVE_COLOR : "var(--ink4)" }}
           >
             Custom
           </span>
@@ -257,7 +259,7 @@ function BackgroundPicker({
       {customBg && (
         <button
           onClick={onRemove}
-          className="mt-1.5 cursor-pointer self-start border-none bg-transparent px-1 py-0.5 text-[11.5px] font-medium text-[#8a837a] transition-[filter] duration-100 ease-in-out hover:brightness-140"
+          className="mt-1.5 cursor-pointer self-start border-none bg-transparent px-1 py-0.5 text-[11.5px] font-medium text-[var(--ink4)] transition-[filter] duration-100 ease-in-out hover:brightness-140"
         >
           Remove custom background
         </button>
@@ -292,7 +294,7 @@ function Segmented({
             style={{
               background: active ? ACTIVE_BG : "transparent",
               boxShadow: active ? ACTIVE_SHADOW : "none",
-              color: active ? ACTIVE_COLOR : "#8a837a",
+              color: active ? ACTIVE_COLOR : "var(--ink4)",
             }}
           >
             {opt.label}
@@ -351,12 +353,12 @@ export default function SettingsModal({
         <button
           onClick={onClose}
           title="Close"
-          className="absolute top-[18px] right-[18px] z-10 flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-1.5 text-[#b3ada3] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+          className="absolute top-[18px] right-[18px] z-10 flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-1.5 text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
         >
           <CloseIcon />
         </button>
 
-        <div className="text-[20px] font-semibold text-[#ecebe8]">Settings</div>
+        <div className="text-[20px] font-semibold text-[var(--ink0)]">Settings</div>
 
         <SectionLabel>Difficulty</SectionLabel>
         <DifficultyDropdown value={settings.difficulty} onChange={onSelectDifficulty} />
@@ -390,13 +392,13 @@ export default function SettingsModal({
         </div>
 
         <div className="mt-5 flex items-center justify-between border-t border-white/[0.06] pt-4">
-          <span className="text-[12px] text-[#7d766c]">Sudotiles v{APP_VERSION}</span>
+          <span className="text-[12px] text-[var(--ink5)]">Sudotiles v{APP_VERSION}</span>
           <a
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
             title="View source on GitHub"
-            className="flex items-center justify-center rounded-[10px] bg-white/[0.06] p-2 text-[#b3ada3] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+            className="flex items-center justify-center rounded-[10px] bg-white/[0.06] p-2 text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
           >
             <GitHubIcon />
           </a>

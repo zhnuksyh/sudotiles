@@ -24,8 +24,8 @@ function MiniGrid({ cells }: { cells: string }) {
             key={i}
             className="flex h-8 w-8 items-center justify-center text-[15px] font-medium"
             style={{
-              background: target ? "rgba(var(--accent-rgb),0.16)" : "linear-gradient(180deg,#222019,#191712)",
-              color: target ? "var(--accent-strong)" : "#d8d3ca",
+              background: target ? "rgba(var(--accent-rgb),0.16)" : "linear-gradient(180deg,var(--cell),var(--board1))",
+              color: target ? "var(--accent-strong)" : "var(--ink1)",
               boxShadow: "0 0 0 0.5px rgba(255,255,255,0.05) inset",
             }}
           >
@@ -138,12 +138,12 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
         <button
           onClick={onClose}
           title="Close"
-          className="absolute top-[18px] right-[18px] z-10 flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-1.5 text-[#b3ada3] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+          className="absolute top-[18px] right-[18px] z-10 flex cursor-pointer items-center justify-center rounded-[10px] border-none bg-white/[0.06] p-1.5 text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
         >
           <CloseIcon />
         </button>
 
-        <div className="mb-1 text-[22px] font-semibold text-[#ecebe8]">How to play Sudoku</div>
+        <div className="mb-1 text-[22px] font-semibold text-[var(--ink0)]">How to play Sudoku</div>
 
         <button
           onClick={onStartTutorial}
@@ -155,11 +155,11 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
         <a
           href={`${import.meta.env.BASE_URL}learn/`}
           className="mt-2 flex items-center justify-between rounded-[14px] px-4 py-3 no-underline shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.12]"
-          style={{ background: "linear-gradient(180deg,#282520,#1e1b17)" }}
+          style={{ background: "linear-gradient(180deg,var(--row0),var(--row1))" }}
         >
           <span className="flex flex-col">
-            <span className="text-[14px] font-semibold text-[#e4e1db]">Learn techniques</span>
-            <span className="text-[11.5px] text-[#8a837a]">
+            <span className="text-[14px] font-semibold text-[var(--ink1)]">Learn techniques</span>
+            <span className="text-[11.5px] text-[var(--ink4)]">
               Interactive lessons for pointing, pairs, X-wings and more
             </span>
           </span>
@@ -169,10 +169,10 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
         </a>
 
         <SectionTitle>The goal</SectionTitle>
-        <p className="text-[13.5px] leading-relaxed text-[#b3ada3]">
-          Fill the 9×9 grid so every <strong className="text-[#e4e1db]">row</strong>, every{" "}
-          <strong className="text-[#e4e1db]">column</strong>, and every{" "}
-          <strong className="text-[#e4e1db]">3×3 box</strong> contains the numbers 1 through 9 exactly
+        <p className="text-[13.5px] leading-relaxed text-[var(--ink2)]">
+          Fill the 9×9 grid so every <strong className="text-[var(--ink1)]">row</strong>, every{" "}
+          <strong className="text-[var(--ink1)]">column</strong>, and every{" "}
+          <strong className="text-[var(--ink1)]">3×3 box</strong> contains the numbers 1 through 9 exactly
           once. No number may repeat within a row, column, or box.
         </p>
 
@@ -182,20 +182,20 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
             <div key={t.title} className="flex gap-3.5">
               <div className="flex flex-col items-center gap-1">
                 <MiniGrid cells={t.grid} />
-                <span className="max-w-[96px] text-center text-[10.5px] leading-tight text-[#7c756b]">
+                <span className="max-w-[96px] text-center text-[10.5px] leading-tight text-[var(--ink5)]">
                   {t.caption}
                 </span>
               </div>
               <div className="flex-1">
-                <div className="text-[15px] font-semibold text-[#e4e1db]">{t.title}</div>
-                <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#a49d92]">{t.body}</p>
+                <div className="text-[15px] font-semibold text-[var(--ink1)]">{t.title}</div>
+                <p className="mt-0.5 text-[12.5px] leading-relaxed text-[var(--ink3)]">{t.body}</p>
               </div>
             </div>
           ))}
         </div>
 
         <SectionTitle>Tips in this app</SectionTitle>
-        <ul className="flex list-disc flex-col gap-1 pl-4 text-[12.5px] leading-relaxed text-[#a49d92]">
+        <ul className="flex list-disc flex-col gap-1 pl-4 text-[12.5px] leading-relaxed text-[var(--ink3)]">
           <li>
             Right-click a number (or tap the <span className="text-[var(--accent)]">pencil</span>) to jot
             candidate scribbles in a cell.
@@ -216,7 +216,7 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
         </ul>
 
         <SectionTitle>Keyboard shortcuts</SectionTitle>
-        <p className="mb-2 text-[11.5px] leading-relaxed text-[#7c756b]">
+        <p className="mb-2 text-[11.5px] leading-relaxed text-[var(--ink5)]">
           Desktop only, and can be turned off in Settings.
         </p>
         <div className="flex flex-col gap-1.5">
@@ -229,15 +229,15 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
               <div className="flex shrink-0 items-center gap-1">
                 {row.keys.map((k, i) =>
                   k === "–" ? (
-                    <span key={i} className="text-[12px] text-[#8a837a]">
+                    <span key={i} className="text-[12px] text-[var(--ink4)]">
                       –
                     </span>
                   ) : (
                     <kbd
                       key={i}
-                      className="inline-flex min-w-[26px] items-center justify-center rounded-[7px] px-2 py-1 text-[12px] font-medium text-[#e4e1db]"
+                      className="inline-flex min-w-[26px] items-center justify-center rounded-[7px] px-2 py-1 text-[12px] font-medium text-[var(--ink1)]"
                       style={{
-                        background: "linear-gradient(180deg,#2c2924,#201d19)",
+                        background: "linear-gradient(180deg,var(--menu0),var(--menu1))",
                         boxShadow:
                           "0 1px 0 rgba(255,255,255,0.05) inset, 0 1px 2px rgba(0,0,0,0.4)",
                       }}
@@ -247,7 +247,7 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
                   ),
                 )}
               </div>
-              <span className="text-[12.5px] leading-relaxed text-[#a49d92]">{row.desc}</span>
+              <span className="text-[12.5px] leading-relaxed text-[var(--ink3)]">{row.desc}</span>
             </div>
           ))}
         </div>
@@ -262,7 +262,7 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
               rel="noreferrer"
               className="flex items-center gap-3 rounded-[14px] px-3.5 py-2.5 no-underline transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.12]"
               style={{
-                background: "linear-gradient(180deg,#282520,#1e1b17)",
+                background: "linear-gradient(180deg,var(--row0),var(--row1))",
                 boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
               }}
             >
@@ -275,8 +275,8 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
                 </svg>
               </span>
               <span className="flex flex-col">
-                <span className="text-[13.5px] font-medium text-[#e4e1db]">{v.title}</span>
-                <span className="text-[11.5px] text-[#8a837a]">{v.channel}</span>
+                <span className="text-[13.5px] font-medium text-[var(--ink1)]">{v.title}</span>
+                <span className="text-[11.5px] text-[var(--ink4)]">{v.channel}</span>
               </span>
             </a>
           ))}

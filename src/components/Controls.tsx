@@ -5,7 +5,7 @@ const ACTIVE_SHADOW = "0 0 0 2px rgba(var(--accent-rgb),0.65) inset";
 const ACTIVE_COLOR = "var(--accent)";
 const IDLE_BG = "linear-gradient(180deg,var(--ctl0),var(--ctl1))";
 const IDLE_SHADOW = "0 2px 5px rgba(0,0,0,0.4),0 1px 0 rgba(255,255,255,0.04) inset";
-const IDLE_COLOR = "#c2bcb2";
+const IDLE_COLOR = "var(--ink2)";
 
 interface ControlsProps {
   pencil: boolean;

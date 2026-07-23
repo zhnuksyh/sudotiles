@@ -56,8 +56,8 @@ function seedScribbles(lesson: Lesson): Record<number, Set<string>> {
 }
 
 const LEGEND_SWATCH: Record<LegendKind, string> = {
-  unit: "bg-[rgba(120,170,255,0.18)] shadow-[0_0_0_1px_rgba(120,170,255,0.5)_inset]",
-  pattern: "bg-[rgba(120,170,255,0.22)] shadow-[0_0_0_2px_rgba(120,170,255,0.9)_inset]",
+  unit: "bg-[rgba(var(--pattern-rgb),0.18)] shadow-[0_0_0_1px_rgba(var(--pattern-rgb),0.5)_inset]",
+  pattern: "bg-[rgba(var(--pattern-rgb),0.22)] shadow-[0_0_0_2px_rgba(var(--pattern-rgb),0.9)_inset]",
   target: "bg-[rgba(var(--accent-rgb),0.18)] shadow-[0_0_0_2px_rgba(var(--accent-rgb),0.9)_inset]",
 };
 
@@ -67,7 +67,7 @@ function Legend({ items }: { items: NonNullable<LessonStep["legend"]> }) {
       {items.map((it, i) => (
         <span key={i} className="flex items-center gap-1.5">
           <span className={`h-3.5 w-3.5 shrink-0 rounded-[4px] ${LEGEND_SWATCH[it.kind]}`} />
-          <span className="text-[11.5px] text-[#a49d92]">{it.label}</span>
+          <span className="text-[11.5px] text-[var(--ink3)]">{it.label}</span>
         </span>
       ))}
     </div>
@@ -155,7 +155,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
   const backButton = (
     <button
       onClick={onBack}
-      className="flex w-fit cursor-pointer items-center gap-1 rounded-[12px] border-none bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-[#c2bcb2] transition-[filter] duration-100 ease-in-out hover:brightness-150"
+      className="flex w-fit cursor-pointer items-center gap-1 rounded-[12px] border-none bg-white/[0.06] px-3 py-2 text-[13px] font-medium text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
     >
       <ChevronLeftIcon />
       Back
@@ -183,7 +183,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
       {notice && (
         <div className="pointer-events-none absolute inset-0 z-[60] flex items-center justify-center">
           <div
-            className="mx-6 rounded-full bg-[var(--menu0)] px-5 py-2.5 text-center text-[13px] font-medium text-[#e4e1db] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
+            className="mx-6 rounded-full bg-[var(--menu0)] px-5 py-2.5 text-center text-[13px] font-medium text-[var(--ink1)] shadow-[0_12px_30px_-8px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.07)_inset]"
             style={{ animation: "st-rise 0.25s ease-out both" }}
           >
             {notice}
@@ -202,7 +202,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
       {done ? (
         <>
           <div className="mb-1 text-[15px] font-semibold text-[var(--accent)]">Nicely done</div>
-          <p className="m-0 text-[12.5px] leading-relaxed text-[#c2bcb2]">
+          <p className="m-0 text-[12.5px] leading-relaxed text-[var(--ink2)]">
             You spotted the {lesson.name.toLowerCase()} and made the elimination it unlocks. That one
             cross-out is how these techniques chip away at a hard board. Try another, or head back to
             the game and put it to work.
@@ -210,7 +210,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
           <div className="mt-3 flex justify-end">
             <button
               onClick={onBack}
-              className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[#e5e1d8] to-[#c9c3b8] px-4 py-1.5 text-[12.5px] font-semibold text-[#191714] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
+              className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[var(--btn0)] to-[var(--btn1)] px-4 py-1.5 text-[12.5px] font-semibold text-[var(--btn-ink)] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
             >
               Back to techniques
             </button>
@@ -220,13 +220,13 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
         <>
           <div className="mb-1.5 flex items-baseline justify-between gap-3">
             <span className="text-[15px] font-semibold text-[var(--accent)]">{s.title}</span>
-            <span className="shrink-0 text-[11px] font-medium text-[#7d766c]">
+            <span className="shrink-0 text-[11px] font-medium text-[var(--ink5)]">
               {step + 1} / {lesson.steps.length}
             </span>
           </div>
           <div className="flex flex-col gap-2">
             {s.text.map((p, i) => (
-              <p key={i} className="m-0 text-[12.5px] leading-relaxed text-[#c2bcb2]">
+              <p key={i} className="m-0 text-[12.5px] leading-relaxed text-[var(--ink2)]">
                 {p}
               </p>
             ))}
@@ -237,7 +237,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
             <button
               onClick={goPrev}
               disabled={step === 0}
-              className={`flex items-center gap-1 rounded-[10px] border-none bg-white/[0.06] px-3 py-1.5 text-[12.5px] font-medium text-[#c2bcb2] transition-[filter] duration-100 ease-in-out hover:brightness-150 ${
+              className={`flex items-center gap-1 rounded-[10px] border-none bg-white/[0.06] px-3 py-1.5 text-[12.5px] font-medium text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150 ${
                 step === 0 ? "invisible" : "cursor-pointer"
               }`}
             >
@@ -247,7 +247,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
             {!s.awaitElim && (
               <button
                 onClick={goNext}
-                className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[#e5e1d8] to-[#c9c3b8] px-4 py-1.5 text-[12.5px] font-semibold text-[#191714] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
+                className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[var(--btn0)] to-[var(--btn1)] px-4 py-1.5 text-[12.5px] font-semibold text-[var(--btn-ink)] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
               >
                 {isLast ? "Finish" : "Next"}
               </button>
