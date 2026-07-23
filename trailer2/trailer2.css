@@ -1,0 +1,202 @@
+/* Trailer2-only motion, for the /learn/ showcase. The app's index.css owns the
+ * shared tokens and its own keyframes (st-rise, st-pop, …); everything here is
+ * exclusive to /trailer2/ and is never loaded by the app or by /trailer/.
+ * Prefixed `t2-` so the two trailers can never collide. */
+
+html,
+body,
+#trailer2-root {
+  height: 100%;
+}
+
+/* ── The two deliberate ember exceptions ───────────────────────────────────
+ * This trailer is shot in the VOID theme (main.tsx pins data-theme="void"), so
+ * every surface, ink and highlight resolves to the black & white palette.
+ *
+ * Exactly TWO things stay ember (the app's warm gold), because they're the
+ * trailer's signature: the kinetic hero/accent TEXT, and the board's pencil-mode
+ * border mark. These are hard-coded here rather than read from --accent, since
+ * --accent is greyscale under void by design; that's the whole point of pinning
+ * them. Everything else must keep using the themed variables.
+ *
+ * Kept in :root (not the void block) so they hold regardless of data-theme. */
+:root {
+  --t2-ember: #dcb887;
+  --t2-ember-rgb: 224, 170, 96;
+}
+
+/* The board's pencil-mode ring is drawn by shared app code (Board.tsx) from
+ * --accent-rgb, which we must not edit. So on the board wrapper only, redefine
+ * that variable back to ember: the ring picks it up, and because the redefinition
+ * is scoped to this element it can't leak to anything else on the page.
+ *
+ * Cells inside the board must stay void, so they get the void value put back —
+ * otherwise a selected cell's accent ring would go gold too. */
+.t2-pencil-ember {
+  --accent-rgb: var(--t2-ember-rgb);
+}
+.t2-pencil-ember [data-cell] {
+  --accent-rgb: 224, 224, 224;
+}
+
+/* Kinetic entrances — the same aggressive hard motion as /trailer/. */
+@keyframes t2-slam {
+  0% {
+    transform: scale(1.6);
+    opacity: 0;
+    filter: blur(14px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+@keyframes t2-rise {
+  0% {
+    transform: translateY(0.7em);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes t2-drop {
+  0% {
+    transform: translateY(-0.5em) scale(0.9);
+    opacity: 0;
+  }
+  65% {
+    transform: translateY(0.06em) scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes t2-cut {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes t2-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.25em);
+  }
+}
+
+/* Left-to-right typewriter reveal. */
+@keyframes t2-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes t2-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The white flash between scenes. */
+@keyframes t2-flash {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* A pad key "pressing itself" when the trailer taps a digit. */
+@keyframes t2-press {
+  0% {
+    transform: translateY(0) scale(1);
+    filter: brightness(1);
+  }
+  40% {
+    transform: translateY(2px) scale(0.94);
+    filter: brightness(1.55);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* A candidate digit being struck out, then fading away. */
+@keyframes t2-strike {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.45);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+/* The stroke that sweeps across the struck candidate. */
+@keyframes t2-slash {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 1;
+  }
+  55% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+}
+
+/* A soft ring pulse that draws the eye to a cell the narration just named. */
+@keyframes t2-ping {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+/* Pausing freezes every in-flight CSS animation on its current frame, so a
+ * resume continues mid-word with no drift. */
+.t2-paused *,
+.t2-paused *::before,
+.t2-paused *::after {
+  animation-play-state: paused !important;
+}
+
+/* While recording for export, hide chrome so the captured frame is clean. */
+.t2-recording {
+  cursor: none;
+}
