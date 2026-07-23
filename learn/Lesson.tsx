@@ -256,15 +256,16 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
             </span>
           </a>
 
-          {/* Step back into the walkthrough to re-read how the deduction went.
-              The elimination stays crossed out; only the narration rewinds. */}
-          <div className="mt-3 flex justify-end">
+          {/* Same left-aligned "Back" as the step cards, stepping into the
+              walkthrough to re-read how the deduction went. The elimination
+              stays crossed out; only the narration rewinds. */}
+          <div className="mt-3 flex items-center justify-between">
             <button
               onClick={reviewPrev}
               className="flex cursor-pointer items-center gap-1 rounded-[10px] border-none bg-white/[0.06] px-3 py-1.5 text-[12.5px] font-medium text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
             >
               <ChevronLeftIcon />
-              Previous instruction
+              Back
             </button>
           </div>
         </>
