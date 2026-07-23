@@ -34,7 +34,15 @@ export default function Cell({ cell, animate, tutorialTarget, lessonHighlight }:
       {lessonHighlight === "pattern" && (
         <div className="absolute inset-0 rounded-[9px] bg-[rgba(var(--pattern-rgb),0.14)] shadow-[0_0_0_2.5px_rgba(var(--pattern-rgb),0.85)_inset]" />
       )}
-      {(tutorialTarget || cell.isHint || lessonHighlight === "target") && (
+      {/* Lesson target: a fixed teal, since the lesson copy calls it "the teal
+          cell". Checked before the accent ring so it wins in a lesson. */}
+      {lessonHighlight === "target" && (
+        <div
+          className="absolute inset-0 rounded-[9px] bg-[rgba(var(--lesson-target-rgb),0.16)] shadow-[0_0_0_2.5px_rgba(var(--lesson-target-rgb),0.95)_inset]"
+          style={{ animation: "st-pulse 1.3s ease-in-out infinite" }}
+        />
+      )}
+      {(tutorialTarget || cell.isHint) && lessonHighlight !== "target" && (
         <div
           className="absolute inset-0 rounded-[9px] shadow-[0_0_0_2.5px_rgba(var(--accent-rgb),0.9)_inset]"
           style={{ animation: "st-pulse 1.3s ease-in-out infinite" }}

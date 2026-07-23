@@ -11,7 +11,7 @@
  * learner taps that digit on the number pad). To make the deduction visible,
  * `scribbles` pre-seeds the candidate notes on the cells that matter, and each
  * step colours the board: a soft blue wash marks the unit in play, a blue ring
- * marks the pattern cells, and a pulsing gold ring marks the target cell.
+ * marks the pattern cells, and a pulsing teal ring marks the target cell.
  *
  * This library is meant to grow: add a Lesson to LESSONS and it appears on the
  * index automatically. */
@@ -111,8 +111,8 @@ export const LESSONS: Lesson[] = [
         title: "Clear 5 from the rest of the column",
         text: [
           "If a 5 must land in column 9 up in the box, no other cell in column 9 can be a 5.",
-          "The gold cell lower down still lists 5 as a candidate — but it's now impossible.",
-          "Cross it out: select the gold cell, then tap 5 on the pad.",
+          "The teal cell lower down still lists 5 as a candidate — but it's now impossible.",
+          "Cross it out: select the teal cell, then tap 5 on the pad.",
         ],
         unit: col(8),
         pattern: [44, 53],
@@ -166,8 +166,8 @@ export const LESSONS: Lesson[] = [
         title: "Clear 1 from the rest of the box",
         text: [
           "If the box's 1 must be on row 4, no other cell in that box can be a 1.",
-          "The gold cell (same box, a different row) still lists 1 — impossible now.",
-          "Select the gold cell and tap 1 to cross it out.",
+          "The teal cell (same box, a different row) still lists 1 — impossible now.",
+          "Select the teal cell and tap 1 to cross it out.",
         ],
         unit: box(3),
         pattern: [27, 28, 29],
@@ -219,8 +219,8 @@ export const LESSONS: Lesson[] = [
       {
         title: "Clear 5 from a neighbour",
         text: [
-          "The gold cell in the same row still lists 5 as a candidate — but the pair has claimed it.",
-          "Select the gold cell and tap 5 to cross it out.",
+          "The teal cell in the same row still lists 5 as a candidate — but the pair has claimed it.",
+          "Select the teal cell and tap 5 to cross it out.",
         ],
         unit: row(7),
         pattern: [63, 67],
@@ -273,8 +273,8 @@ export const LESSONS: Lesson[] = [
       {
         title: "Clear an impostor candidate",
         text: [
-          "The gold cell is reserved for the 5/6 pair, yet it still lists 8.",
-          "Select the gold cell and tap 8 to cross it out (its 9 would go the same way).",
+          "The teal cell is reserved for the 5/6 pair, yet it still lists 8.",
+          "Select the teal cell and tap 8 to cross it out (its 9 would go the same way).",
         ],
         pattern: [57, 75],
         target: [75],
@@ -326,8 +326,8 @@ export const LESSONS: Lesson[] = [
       {
         title: "Clear 7 from a neighbour",
         text: [
-          "The gold cell in the same row still lists 7 — but the triple has claimed it.",
-          "Select the gold cell and tap 7 to cross it out.",
+          "The teal cell in the same row still lists 7 — but the triple has claimed it.",
+          "Select the teal cell and tap 7 to cross it out.",
         ],
         unit: row(4),
         pattern: [40, 41, 43],
@@ -381,8 +381,8 @@ export const LESSONS: Lesson[] = [
         title: "Clear 1 from those columns",
         text: [
           "Because columns 2 and 4 get their 1s at the corners, no other cell in either column can be a 1.",
-          "The gold cell sits in column 2 and still lists 1 — impossible now.",
-          "Select the gold cell and tap 1 to cross it out.",
+          "The teal cell sits in column 2 and still lists 1 — impossible now.",
+          "Select the teal cell and tap 1 to cross it out.",
         ],
         unit: col(1),
         pattern: [10, 12, 46, 48],

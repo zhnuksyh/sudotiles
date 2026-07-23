@@ -58,7 +58,8 @@ function seedScribbles(lesson: Lesson): Record<number, Set<string>> {
 const LEGEND_SWATCH: Record<LegendKind, string> = {
   unit: "bg-[rgba(var(--pattern-rgb),0.18)] shadow-[0_0_0_1px_rgba(var(--pattern-rgb),0.5)_inset]",
   pattern: "bg-[rgba(var(--pattern-rgb),0.22)] shadow-[0_0_0_2px_rgba(var(--pattern-rgb),0.9)_inset]",
-  target: "bg-[rgba(var(--accent-rgb),0.18)] shadow-[0_0_0_2px_rgba(var(--accent-rgb),0.9)_inset]",
+  target:
+    "bg-[rgba(var(--lesson-target-rgb),0.18)] shadow-[0_0_0_2px_rgba(var(--lesson-target-rgb),0.95)_inset]",
 };
 
 function Legend({ items }: { items: NonNullable<LessonStep["legend"]> }) {
@@ -135,7 +136,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
     }
 
     shake();
-    showNotice(`Cross the ${lesson.elim.digit} out of the gold cell`);
+    showNotice(`Cross the ${lesson.elim.digit} out of the teal cell`);
   };
 
   const isLast = step === lesson.steps.length - 1;

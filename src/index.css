@@ -38,6 +38,12 @@
   --pattern-rgb: 120, 170, 255;
   --heart-empty: #3a3733;
 
+  /* Lesson target ring (/learn/ only). Deliberately the SAME teal in every
+   * theme — the lesson copy names the colour ("the teal cell"), so it must not
+   * shift with the theme or the instructions stop making sense. Kept clear of
+   * --pattern-rgb blue and of both accents. */
+  --lesson-target-rgb: 45, 212, 191;
+
   /* Win-celebration confetti (read by Confetti.tsx). */
   --confetti0: #dcb887;
   --confetti1: #e0aa60;
@@ -90,6 +96,10 @@
   --error-rgb: 208, 208, 208;
   --pattern-rgb: 235, 235, 235;
   --heart-empty: #3a3a3a;
+
+  /* --lesson-target-rgb is deliberately NOT overridden: the lesson text refers
+   * to "the teal cell", so that one ring stays teal here too. It only ever
+   * appears inside a /learn/ lesson, never in the game. */
 
   --confetti0: #ffffff;
   --confetti1: #dedede;
