@@ -612,4 +612,361 @@ export const LESSONS: Lesson[] = [
       },
     ],
   },
+  {
+    id: "skyscraper",
+    name: "Skyscraper",
+    tagline: "Two lines sharing a base send their tops hunting for a digit together.",
+    board: "..3.1.7.9..13.7.56.7..5.31..65.43.7..175..643..4176.....8.61.9...6..4.3....835.6.",
+    scribbles: { 7: "28", 10: "2489", 15: "248", 46: "2389", 52: "28" },
+    elim: { cell: 15, digit: "8" },
+    video: {
+      title: "Skyscraper — Sudoku Technique",
+      channel: "Sudoku Swami",
+      url: "https://www.youtube.com/watch?v=Ui1hrx7iTeo",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        unit: [...col(1), ...col(7)],
+        legend: [{ kind: "unit", label: "The two columns we're studying" }],
+      },
+      {
+        title: "Two columns, two homes each",
+        text: [
+          "Track the digit 8 down the two highlighted columns.",
+          "In column 2 it fits only two cells; in column 8 it fits only two cells.",
+          "An X-wing would need all four to line up on the same two rows — here they don't quite.",
+        ],
+        unit: [...col(1), ...col(7)],
+        pattern: [7, 10, 46, 52],
+        legend: [
+          { kind: "unit", label: "The two columns" },
+          { kind: "pattern", label: "Where 8 can go" },
+        ],
+      },
+      {
+        title: "The shared base, and the two tops",
+        text: [
+          "Two of the four cells share a row — row 6. That shared row is the skyscraper's base.",
+          "The other two cells are the tops, and they sit on different rows: rows 1 and 2.",
+          "Both columns need an 8. They can't both take it from the base row, so at least one top is an 8.",
+        ],
+        pattern: [7, 10, 46, 52],
+        legend: [{ kind: "pattern", label: "Base below, tops above" }],
+      },
+      {
+        title: "Clear 8 where both tops reach",
+        text: [
+          "One of the two tops is definitely an 8, so any cell seeing both tops cannot be one.",
+          "The teal cell shares a row with one top and a box with the other, and still lists 8.",
+          "Select the teal cell and tap 8 to cross it out.",
+        ],
+        pattern: [7, 10],
+        target: [15],
+        legend: [
+          { kind: "pattern", label: "The two tops" },
+          { kind: "target", label: "Cross 8 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
+  {
+    id: "two-string-kite",
+    name: "Two-string kite",
+    tagline: "A row and a column meeting in one box point at a single guilty cell.",
+    board: "5..91.48....4...3..4..7....273851..4...649..3496.3..5.....8...2...3.4..9.6.19.3..",
+    scribbles: { 11: "12789", 13: "26", 67: "26", 74: "2458", 77: "257" },
+    elim: { cell: 11, digit: "2" },
+    video: {
+      title: "Two String Kite — Sudoku Technique",
+      channel: "Sudoku Swami",
+      url: "https://www.youtube.com/watch?v=SVJqIunDdWs",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        unit: [...row(8), ...col(4)],
+        legend: [{ kind: "unit", label: "The row and column we're studying" }],
+      },
+      {
+        title: "One string along a row, one down a column",
+        text: [
+          "Track the digit 2. In the bottom row it fits only two cells — that's the first string.",
+          "In column 5 it also fits only two cells — the second string.",
+          "Each string is a promise: one of its two ends must be a 2.",
+        ],
+        unit: [...row(8), ...col(4)],
+        pattern: [74, 77, 13, 67],
+        legend: [
+          { kind: "unit", label: "The row and the column" },
+          { kind: "pattern", label: "Where 2 can go" },
+        ],
+      },
+      {
+        title: "The strings are knotted in one box",
+        text: [
+          "One end of the row-string and one end of the column-string sit in the same box, bottom middle.",
+          "Two 2s can't share a box, so those two knotted ends can't both be the 2.",
+          "That forces at least one of the two far ends — the loose ends — to be a 2.",
+        ],
+        pattern: [77, 67, 74, 13],
+        legend: [{ kind: "pattern", label: "Knot in the box, loose ends outside" }],
+      },
+      {
+        title: "Clear 2 where both loose ends reach",
+        text: [
+          "One loose end sits in the bottom row, the other up in column 5.",
+          "The teal cell shares its column with one and its row with the other, so a 2 there is impossible.",
+          "Select the teal cell and tap 2 to cross it out.",
+        ],
+        pattern: [74, 13],
+        target: [11],
+        legend: [
+          { kind: "pattern", label: "The two loose ends" },
+          { kind: "target", label: "Cross 2 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
+  {
+    id: "xyz-wing",
+    name: "XYZ-wing",
+    tagline: "A three-candidate pivot and two pincers gang up on one digit.",
+    board: "....275.9...3.9...9...6...8365..1..4.89..3...2...9...3.....28.7..2..846.1.85.6..2",
+    scribbles: { 36: "47", 39: "2467", 40: "457", 50: "45" },
+    elim: { cell: 39, digit: "4" },
+    video: {
+      title: "XYZ-Wing — Sudoku Technique",
+      channel: "Sudoku Swami",
+      url: "https://www.youtube.com/watch?v=I0-8bIWlqWA",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        pattern: [40],
+        legend: [{ kind: "pattern", label: "The pivot cell" }],
+      },
+      {
+        title: "A pivot of three, two pincers of two",
+        text: [
+          "The ringed cell in the middle of row 5 is the pivot: it holds 4, 5 and 7 — three candidates.",
+          "Along its row sits a pincer holding 4 and 7; down in the box below sits one holding 4 and 5.",
+          "An XY-wing has a two-candidate pivot; here the pivot carries a third. That's the Z.",
+        ],
+        pattern: [40, 36, 50],
+        legend: [{ kind: "pattern", label: "Pivot and its two pincers" }],
+      },
+      {
+        title: "All three can be the 4",
+        text: [
+          "The digit shared by all three cells is 4. Walk through the pivot's options.",
+          "If the pivot is 4, there's the 4. If the pivot is 7, the row pincer must be 4.",
+          "If the pivot is 5, the other pincer must be 4. Every case puts a 4 in one of the three.",
+        ],
+        pattern: [40, 36, 50],
+        legend: [{ kind: "pattern", label: "One of these three is a 4" }],
+      },
+      {
+        title: "Clear 4 where all three reach",
+        text: [
+          "Unlike an XY-wing, the target must see all three cells — the pivot included.",
+          "The teal cell shares row 5 with the pivot and the row pincer, and its box with the other pincer.",
+          "Select the teal cell and tap 4 to cross it out.",
+        ],
+        pattern: [40, 36, 50],
+        target: [39],
+        legend: [
+          { kind: "pattern", label: "The XYZ-wing" },
+          { kind: "target", label: "Cross 4 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
+  {
+    id: "w-wing",
+    name: "W-wing",
+    tagline: "Twin pairs bridged by a strong link rule a digit out between them.",
+    board: "7.5..214.19.4..25....3519789...86..78...3.6..56...9...35962....4.1....62.........",
+    scribbles: { 13: "67", 14: "78", 64: "78", 67: "79", 68: "3578" },
+    elim: { cell: 68, digit: "8" },
+    video: {
+      title: "W-Wing — Sudoku Technique",
+      channel: "Sudoku Swami",
+      url: "https://www.youtube.com/watch?v=xNKZBnWqIsA",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        pattern: [14, 64],
+        legend: [{ kind: "pattern", label: "The twin pair cells" }],
+      },
+      {
+        title: "Two cells, the identical pair",
+        text: [
+          "The two ringed cells both hold exactly 7 and 8 — the same two candidates.",
+          "They don't share a row, a column or a box, so neither one restricts the other directly.",
+          "A naked pair needs them in the same unit. Here we need something to bridge them.",
+        ],
+        pattern: [14, 64],
+        legend: [{ kind: "pattern", label: "Both are exactly {7,8}" }],
+      },
+      {
+        title: "A strong link on 7 bridges them",
+        text: [
+          "Look down column 5: the digit 7 fits only two cells there — a strong link, so one of them is a 7.",
+          "The top of that link shares row 2 with one twin; the bottom shares row 8 with the other.",
+          "So whichever end takes the 7, it knocks the 7 out of the twin beside it — leaving that twin an 8.",
+        ],
+        unit: col(4),
+        pattern: [13, 67],
+        legend: [
+          { kind: "unit", label: "The bridging column" },
+          { kind: "pattern", label: "The strong link on 7" },
+        ],
+      },
+      {
+        title: "Clear 8 where both twins reach",
+        text: [
+          "Either way, one of the two twins ends up an 8 — we just don't know which.",
+          "So a cell seeing both twins can't be an 8. The teal cell shares a column with one and a row with the other.",
+          "Select the teal cell and tap 8 to cross it out.",
+        ],
+        pattern: [14, 64],
+        target: [68],
+        legend: [
+          { kind: "pattern", label: "The twin pair" },
+          { kind: "target", label: "Cross 8 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
+  {
+    id: "empty-rectangle",
+    name: "Empty rectangle",
+    tagline: "A digit filling an L inside a box teams up with a strong link.",
+    board: "....1..3.....3..65....96..894..725.........7.2..3......8.7614..76.924...41.8536.7",
+    scribbles: { 29: "1368", 36: "13568", 37: "35", 38: "13568", 42: "12389", 65: "35", 69: "138" },
+    elim: { cell: 65, digit: "3" },
+    video: {
+      title: "Empty Rectangle — Sudoku Technique",
+      channel: "Sudoku Swami",
+      url: "https://www.youtube.com/watch?v=Ac1TCVIvbxY",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        unit: box(3),
+        legend: [{ kind: "unit", label: "The box we're studying" }],
+      },
+      {
+        title: "The 3s in this box make an L",
+        text: [
+          "Focus on the highlighted box on the left. Track the digit 3 inside it.",
+          "Its four homes all lie on row 5 or on column 3 — an L, crossing at the corner cell r5c3.",
+          "The empty part is the rectangle of cells with no 3 at all. That corner is the hinge.",
+        ],
+        unit: box(3),
+        pattern: [29, 36, 37, 38],
+        legend: [
+          { kind: "unit", label: "This box" },
+          { kind: "pattern", label: "Where 3 can go" },
+        ],
+      },
+      {
+        title: "The hinge promise",
+        text: [
+          "The box's 3 sits somewhere on that L, so it is on row 5, or on column 3, or on both at the hinge.",
+          "Now look at column 7: the digit 3 fits only two cells there — a strong link.",
+          "The top of that link is on row 5; the bottom is on row 8.",
+        ],
+        unit: col(6),
+        pattern: [42, 69],
+        legend: [
+          { kind: "unit", label: "The linked column" },
+          { kind: "pattern", label: "The strong link on 3" },
+        ],
+      },
+      {
+        title: "Clear 3 at the crossing",
+        text: [
+          "Suppose the teal cell were a 3. It sits on column 3, so the box's 3 would have to be on row 5.",
+          "That row-5 three would knock out the top of the link, forcing the link's bottom — on row 8 — to be a 3.",
+          "But the teal cell is on row 8 too, so we'd have two 3s in one row. Impossible.",
+          "Select the teal cell and tap 3 to cross it out.",
+        ],
+        pattern: [29, 36, 37, 38, 42, 69],
+        target: [65],
+        legend: [
+          { kind: "pattern", label: "The L and the link" },
+          { kind: "target", label: "Cross 3 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
+  {
+    id: "simple-colouring",
+    name: "Simple colouring",
+    tagline: "Chain a digit's strong links, paint them alternately, and trap the cells that see both.",
+    board: "..9.47.83...39...73.76.89..91.4...72734..9..6....7..9...57..16.6.15..73.873961245",
+    scribbles: { 0: "125", 3: "12", 9: "1245", 16: "125", 22: "125", 40: "12", 43: "15" },
+    elim: { cell: 43, digit: "1" },
+    video: {
+      title: "Simple Colouring — Sudoku Technique",
+      channel: "Sudoku Swami",
+      url: "https://www.youtube.com/watch?v=ZC6PsTvcgQY",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        pattern: [0, 3],
+        legend: [{ kind: "pattern", label: "A strong link on 1" }],
+      },
+      {
+        title: "Strong links, chained together",
+        text: [
+          "A strong link is a unit where a digit has exactly two homes: one of them must be it.",
+          "Track the digit 1. Row 1 gives a link, and each end of it starts another link elsewhere.",
+          "Chain them and six cells hang together, every neighbouring pair a strong link.",
+        ],
+        pattern: [0, 3, 9, 16, 22, 40],
+        legend: [{ kind: "pattern", label: "The chain of strong links" }],
+      },
+      {
+        title: "Paint the chain in two colours",
+        text: [
+          "Walk the chain and alternate colours at every step, like a chessboard.",
+          "Because each link holds exactly one 1, the true 1s are all one colour — either every cell of colour A, or every cell of colour B.",
+          "We don't know which colour is the true one. We don't need to.",
+        ],
+        pattern: [0, 22, 16],
+        legend: [{ kind: "pattern", label: "Colour A — the other three are colour B" }],
+      },
+      {
+        title: "Trap the cell that sees both colours",
+        text: [
+          "One colour is entirely 1s, so any cell outside the chain that sees both colours is doomed either way.",
+          "The teal cell shares row 5 with a colour-B cell and column 8 with a colour-A cell.",
+          "Whichever colour turns out true, a 1 lands next to it. Select the teal cell and tap 1 to cross it out.",
+        ],
+        pattern: [22, 16, 40],
+        target: [43],
+        legend: [
+          { kind: "pattern", label: "Both colours reach the target" },
+          { kind: "target", label: "Cross 1 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
 ];
