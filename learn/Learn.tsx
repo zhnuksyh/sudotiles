@@ -50,7 +50,9 @@ export default function Learn() {
           </a>
 
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="m-0 text-[26px] font-semibold text-[var(--ink0)]">Learn Techniques</h1>
+            <h1 className="m-0 text-[26px] font-semibold text-[var(--ink0)]">
+              Learn Advanced Techniques
+            </h1>
             <p className="m-0 max-w-[440px] text-[13.5px] leading-relaxed text-[var(--ink3)]">
               Interactive lessons for the patterns that crack harder puzzles. Each one runs on a real
               board — spot the pattern, make the move it unlocks.
