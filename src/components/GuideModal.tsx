@@ -179,7 +179,7 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
           once. No number may repeat within a row, column, or box.
         </p>
 
-        <SectionTitle>Basic Technique</SectionTitle>
+        <SectionTitle>Basic Techniques</SectionTitle>
         <div className="flex flex-col gap-3.5">
           {TECHNIQUES.map((t) => (
             <div key={t.title} className="flex gap-3.5">
