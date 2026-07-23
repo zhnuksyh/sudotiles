@@ -321,15 +321,18 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
   return (
     <div className="flex w-full max-w-[860px] flex-col gap-4">
       {backButton}
-      <div className="flex flex-col items-center gap-4 lg:grid lg:grid-cols-[560px_260px] lg:items-start lg:gap-x-6">
-        <div className="flex w-full max-w-[560px] flex-col items-center gap-3 lg:col-start-1 lg:row-start-1">
-          {boardTitle}
+      <div className="flex flex-col items-center gap-4 lg:grid lg:grid-cols-[560px_260px] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-6">
+        {/* The title owns its own grid row so the pad below can line up with the
+            top of the board rather than with the title. */}
+        <div className="w-full max-w-[560px] lg:col-start-1 lg:row-start-1">{boardTitle}</div>
+
+        <div className="flex w-full max-w-[560px] flex-col items-center gap-3 lg:col-start-1 lg:row-start-2">
           {boardBlock}
           {legend}
         </div>
 
         {/* Right column on desktop; below the board on mobile. */}
-        <div className="flex w-full max-w-[min(560px,92vw)] flex-col gap-3 lg:col-start-2 lg:row-start-1 lg:w-[260px]">
+        <div className="flex w-full max-w-[min(560px,92vw)] flex-col gap-3 lg:col-start-2 lg:row-start-2 lg:w-[260px]">
           <div className="hidden lg:block">
             <NumberPad onPlace={onScribble} onScribble={onScribble} orientation="vertical" />
           </div>
