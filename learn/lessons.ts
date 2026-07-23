@@ -427,4 +427,189 @@ export const LESSONS: Lesson[] = [
       },
     ],
   },
+  {
+    id: "hidden-triple",
+    name: "Hidden triple",
+    tagline: "Three digits with only three homes lock those cells, clearing their clutter.",
+    board: ".4.7...6...23......5.4..38.2..............4...38...9.2.6..8...15...2......364...7",
+    scribbles: { 35: "3568", 44: "3568", 71: "34689" },
+    elim: { cell: 35, digit: "5" },
+    video: {
+      title: "Hidden Triples — a Sudoku Technique",
+      channel: "Sudoku.com",
+      url: "https://www.youtube.com/watch?v=b-n1eCknvKg",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        unit: col(8),
+        legend: [{ kind: "unit", label: "The column we're studying" }],
+      },
+      {
+        title: "Where can 3, 6 and 8 go?",
+        text: [
+          "Focus on the highlighted column (column 9).",
+          "Track three digits at once: 3, 6 and 8. Each of them fits only the three ringed cells.",
+          "Three digits, three cells — between them they use up all three.",
+        ],
+        unit: col(8),
+        pattern: [35, 44, 71],
+        legend: [
+          { kind: "unit", label: "This column" },
+          { kind: "pattern", label: "Only homes for 3, 6 and 8" },
+        ],
+      },
+      {
+        title: "So those cells are reserved",
+        text: [
+          "The column needs a 3, a 6 and an 8 somewhere, and only these three cells can take them.",
+          "So these cells hold exactly 3, 6 and 8 in some order — nothing else fits.",
+          "It's 'hidden' because each cell still lists extra candidates that can't survive.",
+        ],
+        pattern: [35, 44, 71],
+        legend: [{ kind: "pattern", label: "Reserved for {3,6,8}" }],
+      },
+      {
+        title: "Clear the extras",
+        text: [
+          "The teal cell is reserved for the triple, yet it still lists 5.",
+          "Select the teal cell and tap 5 to cross it out (its neighbours' extras go the same way).",
+        ],
+        pattern: [44, 71],
+        target: [35],
+        legend: [
+          { kind: "pattern", label: "The rest of the triple" },
+          { kind: "target", label: "Cross 5 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
+  {
+    id: "xy-wing",
+    name: "XY-wing",
+    tagline: "Two pincers hinged on a pivot trap a digit that must fall somewhere.",
+    board: "..6.5..49.....83.5.7.........2.6..1.....35.7......78..86.54.1....5..2...9.1.8....",
+    scribbles: { 32: "49", 35: "34", 59: "39", 62: "237" },
+    elim: { cell: 62, digit: "3" },
+    video: {
+      title: "How To Solve XY-Wings Effortlessly",
+      channel: "Smart Hobbies",
+      url: "https://www.youtube.com/watch?v=-9pdS77qNl4",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        pattern: [32],
+        legend: [{ kind: "pattern", label: "The pivot cell" }],
+      },
+      {
+        title: "A pivot with two pincers",
+        text: [
+          "The ringed cell in the middle is the pivot: it holds exactly 4 and 9.",
+          "It sees one cell along its row holding 3 and 4, and one down its column holding 3 and 9.",
+          "Those two are the pincers. Notice all three cells hold just two candidates each.",
+        ],
+        pattern: [32, 35, 59],
+        legend: [{ kind: "pattern", label: "Pivot and its two pincers" }],
+      },
+      {
+        title: "Either way, a 3 appears",
+        text: [
+          "The pivot is a 4 or a 9. Follow both cases.",
+          "If the pivot is 4, the row pincer can't be 4, so it must be 3.",
+          "If the pivot is 9, the column pincer can't be 9, so it must be 3.",
+          "Either way one of the two pincers ends up a 3 — we just don't know which.",
+        ],
+        pattern: [35, 59],
+        legend: [{ kind: "pattern", label: "One of these is a 3" }],
+      },
+      {
+        title: "Clear 3 where both pincers see",
+        text: [
+          "A 3 is guaranteed in one of the pincers, so any cell that sees both of them cannot be a 3.",
+          "The teal cell sits in the same row as one pincer and the same column as the other.",
+          "Select the teal cell and tap 3 to cross it out.",
+        ],
+        pattern: [35, 59],
+        target: [62],
+        legend: [
+          { kind: "pattern", label: "The pincers" },
+          { kind: "target", label: "Cross 3 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
+  {
+    id: "swordfish",
+    name: "Swordfish",
+    tagline: "A digit confined to three rows and three columns clears those columns.",
+    board: "6...7.........5....3....2...8.4...357.4....61..9....7.41.8........3.4.5.....2...3",
+    scribbles: {
+      5: "12389",
+      6: "134589",
+      13: "134689",
+      15: "1346789",
+      40: "3589",
+      41: "2389",
+      49: "13568",
+    },
+    elim: { cell: 49, digit: "3" },
+    video: {
+      title: "Swordfish — an Advanced Sudoku Technique",
+      channel: "Sudoku.com",
+      url: "https://www.youtube.com/watch?v=lLVAVPLH7G4",
+    },
+    steps: [
+      {
+        title: "How candidates work",
+        text: CANDIDATES_PRIMER,
+        unit: [...row(0), ...row(1), ...row(4)],
+        legend: [{ kind: "unit", label: "The three rows we're studying" }],
+      },
+      {
+        title: "Three rows, three columns",
+        text: [
+          "Track the digit 3 across the three highlighted rows.",
+          "In row 1 it fits only columns 6 and 7; in row 2 only columns 5 and 7; in row 5 only columns 5 and 6.",
+          "Six cells, but they all land inside just three columns — 5, 6 and 7.",
+        ],
+        unit: [...row(0), ...row(1), ...row(4)],
+        pattern: [5, 6, 13, 15, 40, 41],
+        legend: [
+          { kind: "unit", label: "The three rows" },
+          { kind: "pattern", label: "Where 3 can go" },
+        ],
+      },
+      {
+        title: "The three columns are spoken for",
+        text: [
+          "Each of the three rows needs a 3, and every one of them must come from these six cells.",
+          "Three 3s spread across three columns means each of columns 5, 6 and 7 gets exactly one.",
+          "That's a swordfish: an X-wing stretched from two lines to three.",
+        ],
+        pattern: [5, 6, 13, 15, 40, 41],
+        legend: [{ kind: "pattern", label: "The swordfish" }],
+      },
+      {
+        title: "Clear 3 from those columns",
+        text: [
+          "Columns 5, 6 and 7 already get their 3s from the rows above, so no other cell in them can be a 3.",
+          "The teal cell sits in column 5 and still lists 3 — impossible now.",
+          "Select the teal cell and tap 3 to cross it out.",
+        ],
+        unit: col(4),
+        pattern: [5, 6, 13, 15, 40, 41],
+        target: [49],
+        legend: [
+          { kind: "pattern", label: "The swordfish" },
+          { kind: "target", label: "Cross 3 out here" },
+        ],
+        awaitElim: true,
+      },
+    ],
+  },
 ];
