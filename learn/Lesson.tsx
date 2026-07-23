@@ -163,6 +163,14 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
     </button>
   );
 
+  /* The technique being studied, centred above the board so it stays visible
+     while the narration scrolls through steps. */
+  const boardTitle = (
+    <div className="text-center text-[15px] font-semibold tracking-[0.2px] text-[var(--accent)]">
+      {lesson.name}
+    </div>
+  );
+
   const boardBlock = (
     <div
       className="relative"
@@ -297,6 +305,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
       {backButton}
       <div className="flex flex-col items-center gap-4 lg:grid lg:grid-cols-[560px_260px] lg:items-start lg:gap-x-6">
         <div className="flex w-full max-w-[560px] flex-col items-center gap-3 lg:col-start-1 lg:row-start-1">
+          {boardTitle}
           {boardBlock}
           {legend}
         </div>
