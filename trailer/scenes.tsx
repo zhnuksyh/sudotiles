@@ -189,7 +189,11 @@ function EndCard({ t }: SceneProps) {
         <K
           at={0}
           kind="cut"
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-5 py-2.5 text-[clamp(0.9rem,2.4vw,1.3rem)] font-medium text-[#ecebe8] shadow-[0_0_0_1px_rgba(255,255,255,0.1)_inset]"
+          /* `display` must be set here, not via a class: K's inline style sets
+             inline-block, which would beat an inline-flex utility and stack the
+             icon above the text. */
+          style={{ display: "inline-flex" }}
+          className="mt-8 items-center gap-2 rounded-full bg-white/[0.06] px-5 py-2.5 text-[clamp(0.9rem,2.4vw,1.3rem)] font-medium text-[#ecebe8] shadow-[0_0_0_1px_rgba(255,255,255,0.1)_inset]"
         >
           <GitHubIcon />
           {REPO_URL.replace("https://github.com/", "github.com/")}
