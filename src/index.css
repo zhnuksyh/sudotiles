@@ -36,6 +36,9 @@
   --error: #e0605f;
   --error-rgb: 224, 96, 96;
   --pattern-rgb: 120, 170, 255;
+  /* Lives. --heart stays red in every theme (a life lost must read as urgent);
+   * only the spent-heart outline follows the surface. */
+  --heart: #e0605f;
   --heart-empty: #3a3733;
 
   /* Lesson target ring (/learn/ only). Deliberately the SAME teal in every
@@ -95,6 +98,7 @@
   --error: #d0d0d0;
   --error-rgb: 208, 208, 208;
   --pattern-rgb: 235, 235, 235;
+  /* --heart is deliberately NOT overridden — hearts stay red here too. */
   --heart-empty: #3a3a3a;
 
   /* --lesson-target-rgb is deliberately NOT overridden: the lesson text refers

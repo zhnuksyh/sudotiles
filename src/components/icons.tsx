@@ -8,7 +8,7 @@ export function HeartFilledIcon() {
     >
       <path
         d="M12 21s-7.4-4.7-9.9-9.4C.5 8 2.1 4.6 5.4 4.6c2 0 3.3 1.2 4.1 2.4C10.3 5.8 11.5 4.6 13.5 4.6c3.3 0 4.9 3.4 3.3 7C14.3 16.3 12 21 12 21z"
-        fill="var(--error)"
+        fill="var(--heart)"
       />
     </svg>
   );
