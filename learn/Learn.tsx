@@ -1,7 +1,26 @@
 import { useState } from "react";
 import { ChevronLeftIcon } from "../src/components/icons";
+import { loadCustomBackground } from "../src/game/customTheme";
+import { loadSettings } from "../src/game/settings";
 import Lesson from "./Lesson";
 import { LESSONS } from "./lessons";
+
+/* Page background, matching the game: the user's picture under a dark scrim
+ * when the custom theme is active, otherwise the themed radial gradient.
+ * Read once at module load — settings can't change while this page is open. */
+const customBg = loadSettings().theme === "custom" ? loadCustomBackground() : null;
+
+const pageBackground: React.CSSProperties = customBg
+  ? {
+      backgroundImage: `linear-gradient(rgba(8,8,10,0.72), rgba(8,8,10,0.82)), url("${customBg}")`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundAttachment: "fixed",
+    }
+  : {
+      background:
+        "radial-gradient(135% 105% at 50% 14%, var(--bg0) 0%, var(--bg1) 58%, var(--bg2) 100%)",
+    };
 
 /* The technique-library page: an index of lessons that opens the real Board in
  * a guided, interactive walkthrough for each. A separate HTML entry (see
@@ -15,10 +34,7 @@ export default function Learn() {
   return (
     <div
       className="relative flex min-h-[100dvh] flex-col items-center overflow-x-hidden px-3 py-8 font-sans sm:px-6"
-      style={{
-        background:
-          "radial-gradient(135% 105% at 50% 14%, var(--bg0) 0%, var(--bg1) 58%, var(--bg2) 100%)",
-      }}
+      style={pageBackground}
     >
       {lesson ? (
         <Lesson lesson={lesson} onBack={() => setOpenId(null)} />
