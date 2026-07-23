@@ -180,7 +180,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
   /* The technique being studied, centred above the board so it stays visible
      while the narration scrolls through steps. */
   const boardTitle = (
-    <div className="text-center text-[15px] font-semibold tracking-[0.2px] text-[var(--accent)]">
+    <div className="text-center text-[26px] font-semibold tracking-[0.2px] text-[var(--accent)]">
       {lesson.name}
     </div>
   );
