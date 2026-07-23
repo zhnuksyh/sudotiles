@@ -89,6 +89,9 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
   const [shaking, setShaking] = useState(false);
   const [notice, setNotice] = useState("");
   const [done, setDone] = useState(false);
+  /* Sticks once the elimination is made, even while reviewing earlier steps, so
+   * the final step never asks for a cross-out that already happened. */
+  const [solved, setSolved] = useState(false);
   const shakeTimeout = useRef<number | undefined>(undefined);
   const noticeTimeout = useRef<number | undefined>(undefined);
 
@@ -131,6 +134,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
       next[selected].delete(digit);
       setScribbles(next);
       sounds.blip();
+      setSolved(true);
       setDone(true);
       return;
     }
@@ -151,6 +155,16 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
     if (step === 0) return;
     sounds.step();
     setStep(step - 1);
+  };
+
+  /* From the completion card, drop back into the walkthrough at the final step
+   * so the learner can re-read the reasoning. `solved` stays true, so the last
+   * step offers "Finish" instead of waiting for a cross-out that already
+   * happened, and the learner can always get back to the completion card. */
+  const reviewPrev = () => {
+    sounds.step();
+    setDone(false);
+    setStep(lesson.steps.length - 1);
   };
 
   const backButton = (
@@ -212,9 +226,7 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
         <>
           <div className="mb-1 text-[15px] font-semibold text-[var(--accent)]">Nicely done</div>
           <p className="m-0 text-[12.5px] leading-relaxed text-[var(--ink2)]">
-            You spotted the {lesson.name.toLowerCase()} and made the elimination it unlocks. That one
-            cross-out is how these techniques chip away at a hard board. Try another, or head back to
-            the game and put it to work.
+            You spotted the {lesson.name.toLowerCase()} and made the elimination it unlocks.
           </p>
 
           {/* A video that teaches this same technique, for a second take on it. */}
@@ -244,12 +256,15 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
             </span>
           </a>
 
+          {/* Step back into the walkthrough to re-read how the deduction went.
+              The elimination stays crossed out; only the narration rewinds. */}
           <div className="mt-3 flex justify-end">
             <button
-              onClick={onBack}
-              className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[var(--btn0)] to-[var(--btn1)] px-4 py-1.5 text-[12.5px] font-semibold text-[var(--btn-ink)] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
+              onClick={reviewPrev}
+              className="flex cursor-pointer items-center gap-1 rounded-[10px] border-none bg-white/[0.06] px-3 py-1.5 text-[12.5px] font-medium text-[var(--ink2)] transition-[filter] duration-100 ease-in-out hover:brightness-150"
             >
-              Back to techniques
+              <ChevronLeftIcon />
+              Previous instruction
             </button>
           </div>
         </>
@@ -281,9 +296,11 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
               <ChevronLeftIcon />
               Back
             </button>
-            {!s.awaitElim && (
+            {/* Hidden on the step that waits for the cross-out — unless it's
+                already been made, in which case this returns to the summary. */}
+            {(!s.awaitElim || solved) && (
               <button
-                onClick={goNext}
+                onClick={isLast && solved ? () => setDone(true) : goNext}
                 className="cursor-pointer rounded-[10px] border-none bg-gradient-to-b from-[var(--btn0)] to-[var(--btn1)] px-4 py-1.5 text-[12.5px] font-semibold text-[var(--btn-ink)] transition-transform duration-100 ease-in-out hover:-translate-y-px active:translate-y-0"
               >
                 {isLast ? "Finish" : "Next"}
