@@ -43,6 +43,8 @@ export interface Lesson {
   /* The elimination the technique unlocks: the learner crosses `digit` out of
    * `cell`. */
   elim: { cell: number; digit: string };
+  /* A video that teaches this technique, offered on the completion screen. */
+  video: { title: string; channel: string; url: string };
   /* Narration + visuals, authored against this exact board. The final step
    * waits for the cross-out; earlier steps advance with "Next". */
   steps: LessonStep[];
@@ -77,6 +79,11 @@ export const LESSONS: Lesson[] = [
     board: ".8.314..6.268793.4.4.256.98654.38..7....4.68..78.6.43..62483...81.69..4.4...2.86.",
     scribbles: { 44: "1259", 53: "1259", 71: "235" },
     elim: { cell: 71, digit: "5" },
+    video: {
+      title: "Locked Candidates: Pointing and Claiming",
+      channel: "Learn Something",
+      url: "https://www.youtube.com/watch?v=Xa13k7a9wos",
+    },
     steps: [
       {
         title: "How candidates work",
@@ -132,6 +139,11 @@ export const LESSONS: Lesson[] = [
     board: "3....265.729865314..6.3..27...6.3..22.3.9..6.69.25..3..3.429..6.643172..972586143",
     scribbles: { 27: "1458", 28: "1458", 29: "1578", 37: "1458", 47: "178" },
     elim: { cell: 37, digit: "1" },
+    video: {
+      title: "How To Solve Sudoku Better Using Hidden And Claiming Pairs",
+      channel: "Smart Hobbies",
+      url: "https://www.youtube.com/watch?v=okTnzo6o4L0",
+    },
     steps: [
       {
         title: "How candidates work",
@@ -187,6 +199,11 @@ export const LESSONS: Lesson[] = [
     board: "248513769135769428...824351.23...8767..3.8142814276935.....2597.9.6..283..29..614",
     scribbles: { 63: "45", 67: "45", 68: "157" },
     elim: { cell: 68, digit: "5" },
+    video: {
+      title: "Sudoku Tutorial 2 — Naked Pairs",
+      channel: "dkmgames",
+      url: "https://www.youtube.com/watch?v=KUF_P9LypNs",
+    },
     steps: [
       {
         title: "How candidates work",
@@ -240,6 +257,11 @@ export const LESSONS: Lesson[] = [
     board: ".....4..89....6154.4..5...7795462381124389576368715249....47893.....14654.....712",
     scribbles: { 57: "256", 75: "5689" },
     elim: { cell: 75, digit: "8" },
+    video: {
+      title: "Hidden Pairs — A Sudoku Technique",
+      channel: "Sudoku.com",
+      url: "https://www.youtube.com/watch?v=dD1fSm8BEj8",
+    },
     steps: [
       {
         title: "How candidates work",
@@ -293,6 +315,11 @@ export const LESSONS: Lesson[] = [
     board: "1978465326589321472431..968..9.246..4.5...2..3.2..17.4..4.1.326.264.3815531268479",
     scribbles: { 40: "789", 41: "79", 43: "89", 37: "1678", 39: "367" },
     elim: { cell: 37, digit: "7" },
+    video: {
+      title: "Naked Triple — Step-by-Step Guide",
+      channel: "Sudoku VC",
+      url: "https://www.youtube.com/watch?v=Vc5JOcLK6nQ",
+    },
     steps: [
       {
         title: "How candidates work",
@@ -347,6 +374,11 @@ export const LESSONS: Lesson[] = [
     board: ".4982.3755.7.34..8382795461.75.43..98.3.5.7.42.4.78653738569142456312..7921487536",
     scribbles: { 10: "16", 12: "16", 46: "19", 48: "19", 37: "169" },
     elim: { cell: 37, digit: "1" },
+    video: {
+      title: "Advanced Sudoku: Making X-Wings Simple",
+      channel: "Cracking The Cryptic",
+      url: "https://www.youtube.com/watch?v=8PqBDhKma7E",
+    },
     steps: [
       {
         title: "How candidates work",

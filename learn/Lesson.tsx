@@ -208,6 +208,34 @@ export default function Lesson({ lesson, onBack }: LessonProps) {
             cross-out is how these techniques chip away at a hard board. Try another, or head back to
             the game and put it to work.
           </p>
+
+          {/* A video that teaches this same technique, for a second take on it. */}
+          <div className="mt-3 mb-1 text-[11px] font-semibold tracking-[1.2px] text-[var(--ink5)] uppercase">
+            Watch it explained
+          </div>
+          <a
+            href={lesson.video.url}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 rounded-[14px] px-3 py-2.5 no-underline shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] transition-[transform,filter] duration-100 ease-in-out hover:-translate-y-px hover:brightness-[1.12]"
+            style={{ background: "linear-gradient(180deg,var(--row0),var(--row1))" }}
+          >
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+              style={{ background: "#e0605f" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[12.5px] leading-snug font-medium text-[var(--ink1)]">
+                {lesson.video.title}
+              </span>
+              <span className="text-[11px] text-[var(--ink4)]">{lesson.video.channel}</span>
+            </span>
+          </a>
+
           <div className="mt-3 flex justify-end">
             <button
               onClick={onBack}
