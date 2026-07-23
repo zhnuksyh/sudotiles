@@ -10,7 +10,8 @@ interface GuideModalProps {
 }
 
 /* A tiny 3x3 example grid. Each cell is one character: a digit, "." for empty,
- * or "*" for the highlighted target cell (shown in gold). */
+ * or "*" for the highlighted target cell (drawn in the theme accent, and
+ * labelled "?" rather than by colour). */
 function MiniGrid({ cells }: { cells: string }) {
   return (
     <div
@@ -158,7 +159,9 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
           style={{ background: "linear-gradient(180deg,var(--row0),var(--row1))" }}
         >
           <span className="flex flex-col">
-            <span className="text-[14px] font-semibold text-[var(--ink1)]">Learn techniques</span>
+            <span className="text-[14px] font-semibold text-[var(--ink1)]">
+              Learn Advanced Techniques
+            </span>
             <span className="text-[11.5px] text-[var(--ink4)]">
               Interactive lessons for pointing, pairs, X-wings and more
             </span>
@@ -176,7 +179,7 @@ export default function GuideModal({ open, closing, animate, onStartTutorial, on
           once. No number may repeat within a row, column, or box.
         </p>
 
-        <SectionTitle>Techniques</SectionTitle>
+        <SectionTitle>Basic Technique</SectionTitle>
         <div className="flex flex-col gap-3.5">
           {TECHNIQUES.map((t) => (
             <div key={t.title} className="flex gap-3.5">
